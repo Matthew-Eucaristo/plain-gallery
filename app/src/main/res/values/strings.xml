@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Gallery</string>
+    <string name="tab_photos">Photos</string>
+    <string name="tab_inbox">Inbox</string>
+    <string name="tab_albums">Albums</string>
+    <string name="tab_search">Search</string>
+    <string name="welcome_title">Your photos, nothing else</string>
+    <string name="welcome_body">No ads, no backup prompts, no internet. Gallery only needs to see your photos and videos.</string>
+    <string name="welcome_allow">Allow access</string>
+    <string name="welcome_settings">Open settings</string>
+    <string name="partial_access">Gallery can only see some of your photos.</string>
+    <string name="partial_access_action">Allow all</string>
+</resources>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_photos">Foto</string>
+    <string name="title_inbox">Kiriman</string>
+    <string name="title_albums">Album</string>
+    <string name="title_favorites">Favorit</string>
+    <string name="title_videos">Video</string>
+    <string name="title_screenshots">Screenshot</string>
+    <string name="title_trash">Sampah</string>
+    <string name="settings">Pengaturan</string>
+
+    <string name="inbox_all">Semua</string>
+    <string name="inbox_tidy_title">Rapikan kiriman</string>
+    <string name="inbox_tidy_body">Geser satu per satu · %1$s · %2$s</string>
+    <string name="inbox_tidy_start">Mulai</string>
+    <plurals name="stale_title">
+        <item quantity="other">%1$d kiriman lebih dari %2$d hari</item>
+    </plurals>
+    <string name="stale_action">Pindahkan ke Sampah</string>
+    <plurals name="stale_confirm_title">
+        <item quantity="other">Pindahkan %d kiriman ke Sampah?</item>
+    </plurals>
+    <string name="stale_confirm_body">Masih bisa dipulihkan dari Sampah selama 30 hari.</string>
+    <string name="action_keep">Simpan ke Foto</string>
+    <plurals name="kept_count">
+        <item quantity="other">%d dipindahkan ke Foto</item>
+    </plurals>
+
+    <string name="empty_photos">Belum ada foto</string>
+    <string name="empty_photos_body">Foto dari kamera akan muncul di sini.</string>
+    <string name="empty_inbox">Kiriman sudah bersih</string>
+    <string name="empty_inbox_body">Gambar WhatsApp, screenshot, dan unduhan masuk ke sini.</string>
+    <string name="empty_trash">Sampah kosong</string>
+    <string name="trash_note">Item di Sampah dihapus permanen setelah 30 hari.</string>
+    <string name="empty_trash_action">Kosongkan Sampah</string>
+    <plurals name="days_left">
+        <item quantity="other">Sisa %d hari</item>
+    </plurals>
+
+    <string name="sort">Urutkan</string>
+    <string name="sort_taken">Tanggal diambil</string>
+    <string name="sort_added">Tanggal ditambahkan</string>
+    <string name="sort_size">Ukuran</string>
+    <string name="sort_name">Nama</string>
+</resources>

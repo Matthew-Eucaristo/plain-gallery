@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Settings</string>
+    <string name="settings_manage_media">Delete without asking</string>
+    <string name="settings_manage_media_body">Let Gallery move items to Trash without the system confirmation dialog. You can still undo, and Trash keeps items for 30 days.</string>
+    <string name="settings_manage_media_on">Allowed</string>
+    <string name="settings_manage_media_off">Allow</string>
+    <string name="settings_manage_media_unsupported">Needs Android 12 or later.</string>
+    <string name="settings_stale">Inbox items count as old after</string>
+    <plurals name="settings_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <string name="settings_about">About</string>
+    <string name="settings_about_body">No internet access. No ads. No accounts. Open source.</string>
+    <string name="settings_version">Version %1$s</string>
+</resources>

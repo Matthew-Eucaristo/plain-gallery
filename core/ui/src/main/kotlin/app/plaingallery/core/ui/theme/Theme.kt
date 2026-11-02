@@ -1,0 +1,40 @@
+package app.plaingallery.core.ui.theme
+
+import android.os.Build
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialExpressiveTheme
+import androidx.compose.material3.MotionScheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+
+private val LightFallback = lightColorScheme(
+    primary = Color(0xFF3F5F90),
+    secondary = Color(0xFF555F71),
+    tertiary = Color(0xFF6E5676),
+)
+
+private val DarkFallback = darkColorScheme(
+    primary = Color(0xFFA8C8FF),
+    secondary = Color(0xFFBDC7DC),
+    tertiary = Color(0xFFDBBCE2),
+)
+
+/** Material 3 Expressive with the wallpaper's colors (Android 12+), so the app feels like part of the phone. */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun GalleryTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
+    val context = LocalContext.current
+    val colors = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        darkTheme -> DarkFallback
+        else -> LightFallback
+    }
+    MaterialExpressiveTheme(colorScheme = colors, motionScheme = MotionScheme.expressive(), content = content)
+}

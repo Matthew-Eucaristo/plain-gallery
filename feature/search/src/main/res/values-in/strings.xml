@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_hint">Cari: \"wa juli 2024\", \"nota\"</string>
+    <string name="search_clear">Hapus</string>
+    <string name="search_sources">Dari mana</string>
+    <string name="search_when">Kapan</string>
+    <string name="search_years">Tahun</string>
+    <string name="search_albums">Album</string>
+    <plurals name="search_results">
+        <item quantity="other">%d hasil</item>
+    </plurals>
+    <string name="search_no_results">Tidak ditemukan</string>
+    <string name="search_no_results_body">Coba nama bulan (\"juli\"), tahun, sumber (\"wa\", \"screenshot\") atau sebagian nama file.</string>
+    <string name="kind_video">Video</string>
+    <string name="kind_photo">Foto</string>
+    <string name="favorites">Favorit</string>
+    <string name="this_week">Minggu ini</string>
+    <string name="last_week">Minggu lalu</string>
+    <string name="this_month">Bulan ini</string>
+    <string name="last_month">Bulan lalu</string>
+    <string name="this_year">Tahun ini</string>
+    <string name="last_year">Tahun lalu</string>
+    <string name="holiday_eid">Lebaran %d</string>
+    <string name="holiday_christmas">Natal %d</string>
+    <string name="holiday_new_year">Tahun baru %d</string>
+    <string name="holiday_independence">17 Agustus %d</string>
+    <string name="query_today">hari ini</string>
+    <string name="query_yesterday">kemarin</string>
+    <string name="query_this_week">minggu ini</string>
+    <string name="query_last_month">bulan lalu</string>
+    <string name="query_eid">lebaran</string>
+</resources>

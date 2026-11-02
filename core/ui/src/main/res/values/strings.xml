@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+
+    <string name="source_camera">Camera</string>
+    <string name="source_screenshot">Screenshot</string>
+    <string name="source_whatsapp">WhatsApp</string>
+    <string name="source_telegram">Telegram</string>
+    <string name="source_download">Download</string>
+    <string name="source_other">Other</string>
+    <string name="source_received">%1$s · received</string>
+    <string name="source_sent">%1$s · sent</string>
+
+    <plurals name="selected_count">
+        <item quantity="one">%d selected</item>
+        <item quantity="other">%d selected</item>
+    </plurals>
+    <plurals name="moved_to_trash">
+        <item quantity="one">Moved to trash</item>
+        <item quantity="other">%d moved to trash</item>
+    </plurals>
+    <plurals name="item_count">
+        <item quantity="one">%d item</item>
+        <item quantity="other">%d items</item>
+    </plurals>
+
+    <string name="action_share">Share</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_favorite">Favorite</string>
+    <string name="action_unfavorite">Remove from favorites</string>
+    <string name="action_select_all">Select all</string>
+    <string name="action_clear_selection">Clear selection</string>
+    <string name="action_undo">Undo</string>
+    <string name="action_restore">Restore</string>
+    <string name="action_delete_forever">Delete forever</string>
+    <string name="action_back">Back</string>
+    <string name="action_cancel">Cancel</string>
+
+    <string name="share_more">More</string>
+    <string name="share_with">Share with</string>
+    <string name="share_preparing">Preparing…</string>
+    <string name="share_quality_original">Original</string>
+    <string name="share_quality_compatible">Compatible</string>
+    <string name="share_quality_small">Small</string>
+    <string name="share_hint_original">The exact file</string>
+    <string name="share_hint_compatible">JPEG that every app opens</string>
+    <string name="share_hint_small">Small JPEG, location removed</string>
+    <string name="share_failed">Couldn\'t share these files</string>
+
+    <string name="empty_nothing_here">Nothing here yet</string>
+    <string name="video_duration">Video, %1$s</string>
+    <plurals name="delete_forever_confirm">
+        <item quantity="one">Delete %d item forever?</item>
+        <item quantity="other">Delete %d items forever?</item>
+    </plurals>
+    <string name="delete_forever_body">This can\'t be undone.</string>
+</resources>

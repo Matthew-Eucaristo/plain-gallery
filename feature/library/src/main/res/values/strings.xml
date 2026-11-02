@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_photos">Photos</string>
+    <string name="title_inbox">Inbox</string>
+    <string name="title_albums">Albums</string>
+    <string name="title_favorites">Favorites</string>
+    <string name="title_videos">Videos</string>
+    <string name="title_screenshots">Screenshots</string>
+    <string name="title_trash">Trash</string>
+    <string name="settings">Settings</string>
+
+    <string name="inbox_all">All</string>
+    <string name="inbox_tidy_title">Tidy up your inbox</string>
+    <string name="inbox_tidy_body">Swipe through %1$s · %2$s</string>
+    <string name="inbox_tidy_start">Start</string>
+    <plurals name="stale_title">
+        <item quantity="one">%1$d item older than %2$d days</item>
+        <item quantity="other">%1$d items older than %2$d days</item>
+    </plurals>
+    <string name="stale_action">Move to trash</string>
+    <plurals name="stale_confirm_title">
+        <item quantity="one">Move %d item to trash?</item>
+        <item quantity="other">Move %d items to trash?</item>
+    </plurals>
+    <string name="stale_confirm_body">You can restore them from Trash for 30 days.</string>
+    <string name="action_keep">Keep in Photos</string>
+    <plurals name="kept_count">
+        <item quantity="one">Moved to Photos</item>
+        <item quantity="other">%d moved to Photos</item>
+    </plurals>
+
+    <string name="empty_photos">No photos yet</string>
+    <string name="empty_photos_body">Photos you take will appear here.</string>
+    <string name="empty_inbox">Your inbox is clear</string>
+    <string name="empty_inbox_body">WhatsApp images, screenshots and downloads land here.</string>
+    <string name="empty_trash">Trash is empty</string>
+    <string name="trash_note">Items in Trash are deleted forever after 30 days.</string>
+    <string name="empty_trash_action">Empty trash</string>
+    <plurals name="days_left">
+        <item quantity="one">%d day left</item>
+        <item quantity="other">%d days left</item>
+    </plurals>
+
+    <string name="sort">Sort</string>
+    <string name="sort_taken">Date taken</string>
+    <string name="sort_added">Date added</string>
+    <string name="sort_size">Size</string>
+    <string name="sort_name">Name</string>
+</resources>

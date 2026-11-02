@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="today">Hari ini</string>
+    <string name="yesterday">Kemarin</string>
+
+    <string name="source_camera">Kamera</string>
+    <string name="source_screenshot">Screenshot</string>
+    <string name="source_whatsapp">WhatsApp</string>
+    <string name="source_telegram">Telegram</string>
+    <string name="source_download">Unduhan</string>
+    <string name="source_other">Lainnya</string>
+    <string name="source_received">%1$s · diterima</string>
+    <string name="source_sent">%1$s · terkirim</string>
+
+    <plurals name="selected_count">
+        <item quantity="other">%d dipilih</item>
+    </plurals>
+    <plurals name="moved_to_trash">
+        <item quantity="other">%d dipindahkan ke Sampah</item>
+    </plurals>
+    <plurals name="item_count">
+        <item quantity="other">%d item</item>
+    </plurals>
+
+    <string name="action_share">Bagikan</string>
+    <string name="action_delete">Hapus</string>
+    <string name="action_favorite">Favorit</string>
+    <string name="action_unfavorite">Hapus dari favorit</string>
+    <string name="action_select_all">Pilih semua</string>
+    <string name="action_clear_selection">Batal pilih</string>
+    <string name="action_undo">Urungkan</string>
+    <string name="action_restore">Pulihkan</string>
+    <string name="action_delete_forever">Hapus permanen</string>
+    <string name="action_back">Kembali</string>
+    <string name="action_cancel">Batal</string>
+
+    <string name="share_more">Lainnya</string>
+    <string name="share_with">Bagikan ke</string>
+    <string name="share_preparing">Menyiapkan…</string>
+    <string name="share_quality_original">Asli</string>
+    <string name="share_quality_compatible">Kompatibel</string>
+    <string name="share_quality_small">Hemat</string>
+    <string name="share_hint_original">File apa adanya</string>
+    <string name="share_hint_compatible">JPEG, bisa dibuka semua app</string>
+    <string name="share_hint_small">JPEG kecil, tanpa lokasi</string>
+    <string name="share_failed">Gagal membagikan file</string>
+
+    <string name="empty_nothing_here">Belum ada apa-apa</string>
+    <string name="video_duration">Video, %1$s</string>
+    <plurals name="delete_forever_confirm">
+        <item quantity="other">Hapus %d item secara permanen?</item>
+    </plurals>
+    <string name="delete_forever_body">Tidak bisa dibatalkan.</string>
+</resources>

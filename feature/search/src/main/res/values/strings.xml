@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_hint">Search: \"wa july 2024\", \"receipt\"</string>
+    <string name="search_clear">Clear</string>
+    <string name="search_sources">Where from</string>
+    <string name="search_when">When</string>
+    <string name="search_years">Years</string>
+    <string name="search_albums">Albums</string>
+    <plurals name="search_results">
+        <item quantity="one">%d result</item>
+        <item quantity="other">%d results</item>
+    </plurals>
+    <string name="search_no_results">No matches</string>
+    <string name="search_no_results_body">Try a month (\"july\"), a year, a source (\"wa\", \"screenshot\") or part of a file name.</string>
+    <string name="kind_video">Video</string>
+    <string name="kind_photo">Photo</string>
+    <string name="favorites">Favorites</string>
+    <string name="this_week">This week</string>
+    <string name="last_week">Last week</string>
+    <string name="this_month">This month</string>
+    <string name="last_month">Last month</string>
+    <string name="this_year">This year</string>
+    <string name="last_year">Last year</string>
+    <string name="holiday_eid">Eid %d</string>
+    <string name="holiday_christmas">Christmas %d</string>
+    <string name="holiday_new_year">New Year %d</string>
+    <string name="holiday_independence">17 August %d</string>
+    <!-- Query words that the chips insert; they must be understood by SearchQueryParser. -->
+    <string name="query_today">today</string>
+    <string name="query_yesterday">yesterday</string>
+    <string name="query_this_week">this week</string>
+    <string name="query_last_month">last month</string>
+    <string name="query_eid">eid</string>
+</resources>

@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- A rounded photo frame with a sun and two hills, inside the 66dp safe zone. -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M38,34h32a8,8 0,0 1,8 8v24a8,8 0,0 1,-8 8h-32a8,8 0,0 1,-8 -8v-24a8,8 0,0 1,8 -8z" />
+    <path
+        android:fillColor="#FF2F5BA8"
+        android:pathData="M35,68l12,-14l8,9l6,-6l12,11z" />
+    <path
+        android:fillColor="#FFF4B400"
+        android:pathData="M64,47m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+</vector>

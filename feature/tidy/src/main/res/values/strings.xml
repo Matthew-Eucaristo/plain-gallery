@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tidy_title">Tidy up</string>
+    <string name="tidy_discard">Delete</string>
+    <string name="tidy_keep">Keep</string>
+    <string name="tidy_skip">Skip</string>
+    <string name="tidy_progress">%1$d of %2$d</string>
+    <string name="tidy_oldest">Oldest first</string>
+    <string name="tidy_largest">Largest first</string>
+    <string name="tidy_hint">Swipe left to delete, right to keep in Photos</string>
+    <string name="tidy_done_title">All done</string>
+    <string name="tidy_done_summary">Kept %1$d · Deleting %2$d (%3$s)</string>
+    <string name="tidy_finish">Done</string>
+    <string name="tidy_empty">Nothing to tidy</string>
+</resources>

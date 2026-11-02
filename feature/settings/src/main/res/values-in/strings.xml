@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Pengaturan</string>
+    <string name="settings_manage_media">Hapus tanpa konfirmasi</string>
+    <string name="settings_manage_media_body">Izinkan Gallery memindahkan item ke Sampah tanpa dialog konfirmasi sistem. Tetap bisa diurungkan, dan Sampah menyimpan item selama 30 hari.</string>
+    <string name="settings_manage_media_on">Diizinkan</string>
+    <string name="settings_manage_media_off">Izinkan</string>
+    <string name="settings_manage_media_unsupported">Butuh Android 12 ke atas.</string>
+    <string name="settings_stale">Kiriman dianggap lama setelah</string>
+    <plurals name="settings_days">
+        <item quantity="other">%d hari</item>
+    </plurals>
+    <string name="settings_about">Tentang</string>
+    <string name="settings_about_body">Tanpa akses internet. Tanpa iklan. Tanpa akun. Open source.</string>
+    <string name="settings_version">Versi %1$s</string>
+</resources>

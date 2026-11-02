@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tab_photos">Foto</string>
+    <string name="tab_inbox">Kiriman</string>
+    <string name="tab_albums">Album</string>
+    <string name="tab_search">Cari</string>
+    <string name="welcome_title">Foto kamu, tanpa basa-basi</string>
+    <string name="welcome_body">Tanpa iklan, tanpa ajakan backup, tanpa internet. Gallery hanya perlu melihat foto dan videomu.</string>
+    <string name="welcome_allow">Izinkan akses</string>
+    <string name="welcome_settings">Buka pengaturan</string>
+    <string name="partial_access">Gallery hanya bisa melihat sebagian fotomu.</string>
+    <string name="partial_access_action">Izinkan semua</string>
+</resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tidy_title">Rapikan</string>
+    <string name="tidy_discard">Buang</string>
+    <string name="tidy_keep">Simpan</string>
+    <string name="tidy_skip">Lewati</string>
+    <string name="tidy_progress">%1$d dari %2$d</string>
+    <string name="tidy_oldest">Terlama dulu</string>
+    <string name="tidy_largest">Terbesar dulu</string>
+    <string name="tidy_hint">Geser kiri untuk buang, kanan untuk simpan ke Foto</string>
+    <string name="tidy_done_title">Selesai</string>
+    <string name="tidy_done_summary">Disimpan %1$d · Dibuang %2$d (%3$s)</string>
+    <string name="tidy_finish">Selesai</string>
+    <string name="tidy_empty">Tidak ada yang perlu dirapikan</string>
+</resources>
