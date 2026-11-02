@@ -31,10 +31,11 @@ Phone galleries show ads; cloud galleries keep asking to back up until your free
 ## Features
 
 - **Photos and Inbox, kept apart.** Camera photos in *Photos*; WhatsApp images, screenshots, downloads and Telegram media in *Inbox*, with one-tap clean-up of old items and a swipe-to-tidy mode (left to delete, right to keep).
-- **Fast.** Local index with incremental sync, system thumbnail cache, Baseline Profile, optimistic deletes with Undo. Pinch to change density, drag the scrubber through years.
+- **Fast.** Local index with incremental sync, system thumbnail cache, Baseline Profile, optimistic deletes with Undo. Pinch to change density (the grid follows your fingers), drag the scrubber through years.
 - **Search that understands you**, in English and Indonesian: `wa july 2024`, `screenshot yesterday`, `video favorites`, `eid 2023`, or part of a file name.
 - **Share in one tap** to WhatsApp or the app you used last. *Recommended* (default) converts only what other apps can't open: HEIC/AVIF/RAW → JPEG, HEVC/VP9/AV1/WebM/MKV → H.264 MP4. Also *Original*, *Small* (1600 px photos, 720p video) and *Custom* (JPG/PNG/WebP, photo size, 1080p/720p/480p).
 - **Opens everything**: JPEG, PNG, WebP, GIF, HEIC/HEIF, AVIF, DNG, BMP; MP4, MOV, 3GP, MKV, WebM, AVI with H.264, HEVC, VP8/9, AV1, MPEG-4. Ultra HDR on Android 14+.
+- **Simple editor**: crop and rotate, filters and light/colour sliders, pen and highlighter. Saves a copy next to the original, keeping date and location.
 - **Default viewer** for photos and videos from any app and from the camera's preview button.
 - **Safe**: deletes go to the system Trash for 30 days. Follows system light/dark and wallpaper colors.
 

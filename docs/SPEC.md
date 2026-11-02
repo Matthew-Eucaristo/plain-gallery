@@ -52,7 +52,7 @@ Pengaturan dibuka dari ikon di top bar.
 
 ### 5.1 Grid (dipakai Foto, Kiriman, Album, Cari)
 - Header per **hari** ("Hari ini", "Kemarin", "Sen, 28 Okt"), per **bulan**, atau per **tahun** sesuai tingkat zoom.
-- **Pinch** untuk mengubah kepadatan: 3 → 4 → 6 → 10 kolom (hari → hari → bulan → tahun). Item di tengah tetap menjadi anchor.
+- **Pinch** untuk mengubah kepadatan: 3 → 4 → 6 → 10 kolom (hari → hari → bulan → tahun). Grid ikut membesar/mengecil mengikuti jari, lalu berganti level saat ukuran sel hampir sama dengan level berikutnya; foto di bawah jari tetap di tempat. Layout semua level disiapkan di latar belakang agar pergantian terjadi dalam satu frame.
 - **Scrubber cepat** di tepi kanan, dengan label bulan/tahun saat diseret.
 - **Ketuk** untuk membuka viewer. **Tekan lama** untuk mulai memilih; **seret** setelah tekan lama untuk memilih rentang (auto-scroll di tepi).
 - Video: badge durasi.
@@ -67,7 +67,7 @@ Pengaturan dibuka dari ikon di top bar.
 - Zoom: pinch, ketuk ganda; gambar besar memakai subsampling.
 - **Geser ke bawah** untuk menutup. Predictive back.
 - Ketuk untuk menyembunyikan/menampilkan kontrol (immersive).
-- Aksi bawah: **Bagikan · Edit · Favorit · Info · Hapus**.
+- Aksi bawah: **Bagikan · Edit · Favorit · Info · Hapus**. Edit membuka editor bawaan (5.14); setelah disimpan, viewer langsung menampilkan salinannya.
 - Chip sumber: "WhatsApp · Diterima", "Screenshot", "Kamera".
 - Info: tanggal, nama file, ukuran, resolusi, folder, sumber, lokasi (jika ada) → "Buka di peta" (intent ke app peta).
 - Video: play/pause, seek.
@@ -134,6 +134,13 @@ Pengaturan dibuka dari ikon di top bar.
 - Satu layar sambutan → `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO`, `ACCESS_MEDIA_LOCATION` (Android 13+), atau `READ_EXTERNAL_STORAGE` (Android 11–12).
 - Akses sebagian (Android 14+): banner "Akses terbatas · Izinkan semua".
 
+### 5.14 Editor foto
+- Tiga alat di bar bawah: **Potong** (putar kiri, balik, rasio Bebas/Asli/Persegi/4:3/3:4/16:9/9:16, reset), **Atur** (filter Asli/Cerah/Hangat/Sejuk/Hitam putih/Pudar + slider Kecerahan/Kontras/Saturasi/Kehangatan; tahan foto untuk membandingkan), **Coret** (pena/stabilo, 3 ukuran, 6 warna).
+- Urungkan untuk semua langkah. Tutup dengan perubahan → konfirmasi buang.
+- **Simpan salinan**: file baru di folder yang sama (DCIM/Pictures; sumber lain seperti WhatsApp → `Pictures/Edited/`), dengan EXIF tanggal, kamera dan lokasi; orientasi dinormalkan. Asli tidak pernah diubah.
+- Juga muncul sebagai pilihan "Edit" untuk app lain (intent `ACTION_EDIT` gambar).
+- Selalu gelap, seperti viewer.
+
 ## 6. Klasifikasi sumber
 
 Dari `RELATIVE_PATH`, `OWNER_PACKAGE_NAME`, dan nama file (lihat `SourceClassifier`):
@@ -161,6 +168,7 @@ core:ui              tema Expressive, MediaGrid (pinch, scrubber, drag-select),
                      thumbnail Coil, share sheet, launcher write-request
 feature:library      Foto, Kiriman, Album, detail Album, Sampah
 feature:viewer       pager, zoom, video, info
+feature:editor       editor foto (potong, atur, coret), simpan salinan
 feature:search       layar Cari
 feature:tidy         Rapikan
 feature:settings     Pengaturan
@@ -171,22 +179,34 @@ Alur data: `MediaStore → (sync diff) → Room → Flow<List<Media>> → Librar
 
 ## 8. Roadmap
 
-**Fase 2**
-- OCR on-device opsional (ML Kit text recognition, flavor terpisah agar build inti tetap bebas Google).
-- Pencarian lokasi offline (reverse-geocode GeoNames).
-- Crop/rotate bawaan.
-- Notifikasi saran pembersihan mingguan (WorkManager).
-- Deteksi duplikat/mirip (perceptual hash).
+Diurutkan menurut nilai dibanding usaha (riset Nov 2026). Semua offline.
 
-**Fase 3**
-- Plugin WhatsApp "dari siapa" (NotificationListener + korelasi waktu, opt-in, eksperimental).
-- Pencarian semantik on-device (MobileCLIP/SigLIP).
+**Berikutnya (kecil)**
+- Bersihkan ruang: video besar, media WhatsApp lama, screenshot (dari index Room; pakai ulang Rapikan + Sampah/Urungkan).
+- Kartu "Hari ini, tahun lalu".
+- Putar Motion Photo (Media3 `JpegMotionPhotoExtractor`; HEIC butuh langkah tambahan).
+- Predictive back yang mengecilkan foto kembali ke grid (Nav3).
+- Foto → PDF (untuk formulir sekolah/kantor).
+- Potong durasi video (Media3 Transformer).
 
-## 9. Status MVP (2 Nov 2026)
+**Menengah**
+- Deteksi duplikat/mirip (perceptual hash thumbnail, disimpan di Room) dan tumpukan foto beruntun.
+- OCR untuk screenshot/struk: ML Kit text recognition v2 (model Latin dibundel, ~4 MB/ABI), **flavor terpisah** karena closed-source dan membawa izin jaringan (dihapus manifest). Alternatif open source: PP-OCRv5 + ONNX Runtime (~25 MB).
+- Lokasi offline ("Bali", "Bandung"): reverse-geocode GeoNames, tanpa peta online.
+
+**Besar**
+- Cari dengan konsep ("kucing", "pantai", "makanan"): model gambar CLIP berlisensi bebas (TinyCLIP/OpenAI CLIP, MIT) + daftar konsep EN/ID yang embedding teksnya dihitung saat build. Ukur kecepatan di HP budget dulu.
+- Folder terkunci, pengelompokan wajah.
+- Plugin WhatsApp "dari siapa" (eksperimental).
+
+Tidak dikejar: Gemini Nano (hanya HP flagship), F-Droid.
+
+## 9. Status (0.2.0, 3 Nov 2026)
 
 Sudah dibuat dan diuji di emulator Android 17: semua layar di bagian 5, kecuali yang tercatat di bawah.
 
-- Pinch-zoom grid belum diuji otomatis (adb tidak bisa multi-touch); perlu dicoba di HP asli.
+- Pinch grid diuji dengan gestur dua jari (UiAutomator) dan rekaman layar per frame di emulator.
+- Editor diuji di emulator: potong, putar, filter, coret, simpan salinan (WhatsApp → `Pictures/Edited/`, kamera → `DCIM/Camera/` dengan EXIF tanggal/kamera/GPS), kembali ke viewer pada salinan.
 - Cold start release dengan Baseline Profile: ~120–160 ms di emulator (HP budget akan lebih lambat).
 - Video: retry otomatis ke software decoder jika hardware decoder gagal (player dan konversi).
 - Diuji di emulator: 7 format video (AVI/MPEG-4, WebM/VP9, 3GP, MOV, MP4/AV1, MKV/HEVC, MP4/HEVC) dan foto AVIF/HEIC/BMP/GIF; konversi HEVC→H.264, VP9 WebM→H.264 480p, AVIF→JPEG, HEIC→WebP 1080 px.

@@ -1,10 +1,13 @@
 package app.plaingallery.feature.viewer
 
+import android.app.Activity
+import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Build
-import android.widget.Toast
 import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.fadeIn
@@ -110,6 +113,20 @@ fun ViewerScreen(collection: MediaCollection, initialId: Long, onBack: () -> Uni
     val context = LocalContext.current
 
     LaunchedEffect(items) { if (items != null && list.isEmpty()) onBack() }
+
+    // After an edit, show the saved copy as soon as the library picks it up.
+    var editedId by rememberSaveable { mutableStateOf<Long?>(null) }
+    val editor = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        result.data?.data?.takeIf { result.resultCode == Activity.RESULT_OK }?.let { editedId = runCatching { ContentUris.parseId(it) }.getOrNull() }
+    }
+    LaunchedEffect(list, editedId) {
+        val id = editedId ?: return@LaunchedEffect
+        val index = list.indexOfFirst { it.id == id }
+        if (index >= 0) {
+            pager.scrollToPage(index)
+            editedId = null
+        }
+    }
     LaunchedEffect(current?.id) { current?.let { uiState.lastViewedId = it.id } }
     ImmersiveEffect(chromeVisible)
     val hdrIds = remember { mutableStateSetOf<Long>() }
@@ -184,14 +201,13 @@ fun ViewerScreen(collection: MediaCollection, initialId: Long, onBack: () -> Uni
                             sharing = listOf(current)
                         }
                         if (!current.isVideo) {
-                            val editWith = stringResource(R.string.edit_with)
-                            val noEditor = stringResource(R.string.no_editor)
                             Action(rememberVectorPainter(Icons.Filled.Edit), stringResource(R.string.action_edit)) {
-                                val edit = Intent(Intent.ACTION_EDIT)
-                                    .setDataAndType(current.contentUri, current.mimeType)
-                                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                                runCatching { context.startActivity(Intent.createChooser(edit, editWith)) }
-                                    .onFailure { Toast.makeText(context, noEditor, Toast.LENGTH_SHORT).show() }
+                                // The built-in editor (EditActivity); it returns the saved copy.
+                                editor.launch(
+                                    Intent(Intent.ACTION_EDIT)
+                                        .setDataAndType(current.contentUri, current.mimeType)
+                                        .setPackage(context.packageName),
+                                )
                             }
                         }
                         Action(

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="editor_close">Tutup</string>
+    <string name="editor_save">Simpan salinan</string>
+    <string name="editor_saved">Disimpan sebagai salinan</string>
+    <string name="editor_save_failed">Foto tidak bisa disimpan</string>
+    <string name="editor_open_failed">Foto ini tidak bisa dibuka</string>
+    <string name="editor_discard_title">Buang perubahan?</string>
+    <string name="editor_discard">Buang</string>
+    <string name="editor_keep_editing">Lanjut edit</string>
+    <string name="editor_tool_crop">Potong</string>
+    <string name="editor_tool_adjust">Atur</string>
+    <string name="editor_tool_markup">Coret</string>
+    <string name="editor_rotate">Putar</string>
+    <string name="editor_flip">Balik</string>
+    <string name="editor_reset">Reset</string>
+    <string name="editor_aspect_free">Bebas</string>
+    <string name="editor_aspect_original">Asli</string>
+    <string name="editor_aspect_square">Persegi</string>
+    <string name="editor_filter_original">Asli</string>
+    <string name="editor_filter_vivid">Cerah</string>
+    <string name="editor_filter_warm">Hangat</string>
+    <string name="editor_filter_cool">Sejuk</string>
+    <string name="editor_filter_mono">Hitam putih</string>
+    <string name="editor_filter_fade">Pudar</string>
+    <string name="editor_brightness">Kecerahan</string>
+    <string name="editor_contrast">Kontras</string>
+    <string name="editor_saturation">Saturasi</string>
+    <string name="editor_warmth">Kehangatan</string>
+    <string name="editor_compare_hint">Sentuh dan tahan foto untuk membandingkan</string>
+    <string name="editor_pen">Pena</string>
+    <string name="editor_highlighter">Stabilo</string>
+    <string name="editor_size_thin">Tipis</string>
+    <string name="editor_size_medium">Sedang</string>
+    <string name="editor_size_thick">Tebal</string>
+    <string name="editor_color">Warna %1$d</string>
+</resources>

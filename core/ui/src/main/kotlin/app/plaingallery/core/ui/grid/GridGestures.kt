@@ -2,6 +2,7 @@ package app.plaingallery.core.ui.grid
 
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateCentroid
 import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -76,27 +77,28 @@ internal fun Modifier.gridSelectionGestures(
     }
 }
 
-/** Two-finger pinch steps the zoom level; single-finger input passes through untouched. */
-internal fun Modifier.pinchToZoomLevel(onStep: State<(zoomIn: Boolean) -> Unit>): Modifier = pointerInput(Unit) {
+internal class PinchCallbacks(
+    val onPinch: (zoom: Float, centroid: Offset) -> Unit,
+    val onPinchEnd: () -> Unit,
+)
+
+/**
+ * Two-finger pinch reports a continuous zoom factor around the fingers' centroid; single-finger input
+ * passes through untouched. Once a pinch starts, the rest of the gesture is consumed so lifting one
+ * finger doesn't turn into a scroll.
+ */
+internal fun Modifier.pinchToZoom(callbacks: State<PinchCallbacks>): Modifier = pointerInput(Unit) {
     awaitEachGesture {
         awaitFirstDown(requireUnconsumed = false)
-        var scale = 1f
+        var pinching = false
         do {
             val event = awaitPointerEvent(PointerEventPass.Initial)
             if (event.changes.count { it.pressed } >= 2) {
-                scale *= event.calculateZoom()
-                event.changes.forEach { it.consume() }
-                if (scale > STEP_IN) {
-                    onStep.value(true)
-                    scale = 1f
-                } else if (scale < STEP_OUT) {
-                    onStep.value(false)
-                    scale = 1f
-                }
+                pinching = true
+                callbacks.value.onPinch(event.calculateZoom(), event.calculateCentroid(useCurrent = true))
             }
+            if (pinching) event.changes.forEach { it.consume() }
         } while (event.changes.any { it.pressed })
+        if (pinching) callbacks.value.onPinchEnd()
     }
 }
-
-private const val STEP_IN = 1.3f
-private const val STEP_OUT = 1 / STEP_IN

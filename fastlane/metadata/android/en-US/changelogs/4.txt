@@ -1,0 +1,2 @@
+Built-in photo editor: crop, rotate, filters, adjustments and markup, saved as a copy.
+Smoother pinch to change grid density.

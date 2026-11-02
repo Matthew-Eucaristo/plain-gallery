@@ -1,6 +1,16 @@
 package app.plaingallery.core.ui.grid
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.animate
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlin.math.pow
+import kotlin.math.roundToInt
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
@@ -89,36 +99,97 @@ fun MediaGrid(
     header: (LazyGridScope.() -> Unit)? = null,
 ) {
     val grouping = if (grouped) zoom.grouping else Grouping.None
-    // First frame is built synchronously so a screen never flashes empty; later rebuilds run off the main thread.
-    var built by remember { mutableStateOf(BuiltLayout(items, grouping, byAdded)) }
-    LaunchedEffect(items, grouping, byAdded) {
-        if (!built.matches(items, grouping, byAdded)) {
-            built = withContext(Dispatchers.Default) { BuiltLayout(items, grouping, byAdded) }
+    // Layouts for every density are kept ready so a pinch can switch in the same frame. The first one is
+    // built synchronously so a screen never flashes empty; the rest (and rebuilds) run off the main thread.
+    var layouts by remember { mutableStateOf(mapOf(grouping to BuiltLayout(items, grouping, byAdded))) }
+    LaunchedEffect(items, byAdded, grouped) {
+        val wanted = if (grouped) ZoomLevel.entries.map { it.grouping }.distinct() else listOf(Grouping.None)
+        for (g in wanted.sortedBy { it != grouping }) {
+            if (layouts[g]?.matches(items, g, byAdded) != true) {
+                val built = withContext(Dispatchers.Default) { BuiltLayout(items, g, byAdded) }
+                layouts = layouts + (g to built)
+            }
         }
     }
-    val layout = built.layout
+    fun layoutFor(g: Grouping): GridLayout =
+        layouts[g]?.takeIf { it.matches(items, g, byAdded) }?.layout
+            ?: BuiltLayout(items, g, byAdded).also { layouts = layouts + (g to it) }.layout
+    val layout = (layouts[grouping] ?: layouts.values.first()).layout
     val indexOfId = remember(items) { HashMap<Long, Int>(items.size).also { map -> items.forEachIndexed { i, m -> map[m.id] = i } } }
     val haptics = LocalHapticFeedback.current
     val uiState = LocalGalleryUiState.current
+    val density = LocalDensity.current
+    val scope = rememberCoroutineScope()
 
-    // Keep the item under the user's fingers in place when the density changes.
-    var zoomAnchor by remember { mutableStateOf<Long?>(null) }
-    val onStep = rememberUpdatedState { zoomIn: Boolean ->
-        val next = if (zoomIn) zoom.zoomIn() else zoom.zoomOut()
-        if (next != zoom) {
-            zoomAnchor = state.layoutInfo.visibleItemsInfo.firstNotNullOfOrNull { it.key as? Long }
-            haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
-            onZoomChange(next)
-        }
-    }
     // Screen-provided header items (filters, cards) come before the entries in the grid.
     fun headerCount() = (state.layoutInfo.totalItemsCount - layout.entries.size).coerceAtLeast(0)
 
-    LaunchedEffect(layout) {
-        val anchor = zoomAnchor ?: return@LaunchedEffect
-        indexOfId[anchor]?.let { state.requestScrollToItem(headerCount() + layout.entryIndexOf(it)) }
-        zoomAnchor = null
+    // Pinch: the grid follows the fingers, then switches density at the point where cells are about the
+    // size of the next level, with the photo under the fingers kept in place. Release settles back to 1.
+    val pinch = remember { PinchTracker() }
+    var pinchScale by remember { mutableFloatStateOf(1f) }
+    var pinchOrigin by remember { mutableStateOf(Offset.Zero) }
+    var zooming by remember { mutableStateOf(false) }
+    var settle by remember { mutableStateOf<Job?>(null) }
+
+    fun commit(next: ZoomLevel) {
+        val info = state.layoutInfo
+        val anchor = info.visibleItemsInfo
+            .filter { it.key is Long }
+            .minByOrNull { item ->
+                val top = item.offset.y - info.viewportStartOffset
+                val dx = pinchOrigin.x - (item.offset.x + item.size.width / 2f)
+                val dy = pinchOrigin.y - (top + item.size.height / 2f)
+                dx * dx + dy * dy
+            }
+        val ratio = next.columns.toFloat() / pinch.level.columns
+        if (anchor != null) {
+            val itemIndex = indexOfId[anchor.key as Long]
+            val nextLayout = layoutFor(if (grouped) next.grouping else Grouping.None)
+            if (itemIndex != null) {
+                val oldTop = anchor.offset.y - info.viewportStartOffset
+                val fraction = ((pinchOrigin.y - oldTop) / anchor.size.height).coerceIn(0f, 1f)
+                val gapPx = with(density) { GAP.toPx() }
+                val newHeight = (anchor.size.height + gapPx) / ratio - gapPx
+                val newTop = pinchOrigin.y - fraction * newHeight
+                state.requestScrollToItem(headerCount() + nextLayout.entryIndexOf(itemIndex), (-info.viewportStartOffset - newTop).roundToInt())
+            }
+        }
+        pinch.raw *= ratio
+        pinch.level = next
+        pinchScale = pinch.displayed()
+        haptics.performHapticFeedback(HapticFeedbackType.SegmentTick)
+        onZoomChange(next)
     }
+
+    val pinchCallbacks = rememberUpdatedState(
+        PinchCallbacks(
+            onPinch = { factor, centroid ->
+                if (!zooming) {
+                    pinch.level = zoom
+                    pinch.raw = pinchScale
+                    zooming = true
+                }
+                settle?.cancel()
+                pinchOrigin = centroid
+                pinch.raw *= factor
+                val level = pinch.level
+                val zoomIn = level.zoomIn()
+                val zoomOut = level.zoomOut()
+                when {
+                    zoomIn != level && pinch.raw >= commitScale(level, zoomIn) -> commit(zoomIn)
+                    zoomOut != level && pinch.raw <= commitScale(level, zoomOut) -> commit(zoomOut)
+                    else -> pinchScale = pinch.displayed()
+                }
+            },
+            onPinchEnd = {
+                settle = scope.launch {
+                    animate(pinchScale, 1f, animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) { value, _ -> pinchScale = value }
+                    zooming = false
+                }
+            },
+        ),
+    )
 
     // Returning from the viewer: make sure the photo you were looking at is on screen.
     LaunchedEffect(layout) {
@@ -164,7 +235,7 @@ fun MediaGrid(
 
     BackHandler(enabled = selection.isActive) { selection.clear() }
 
-    val edgePx = with(LocalDensity.current) { 72.dp.toPx() }
+    val edgePx = with(density) { 72.dp.toPx() }
     Box(modifier) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(zoom.columns),
@@ -174,7 +245,15 @@ fun MediaGrid(
             verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(GAP),
             modifier = Modifier
                 .fillMaxSize()
-                .pinchToZoomLevel(onStep)
+                .clipToBounds()
+                .graphicsLayer {
+                    scaleX = pinchScale
+                    scaleY = pinchScale
+                    if (size.width > 0f && size.height > 0f) {
+                        transformOrigin = TransformOrigin(pinchOrigin.x / size.width, pinchOrigin.y / size.height)
+                    }
+                }
+                .pinchToZoom(pinchCallbacks)
                 .gridSelectionGestures(state, callbacks, autoScroll, edgePx),
         ) {
             header?.invoke(this)
@@ -192,10 +271,11 @@ fun MediaGrid(
                         selected = entry.media.id in selection.ids,
                         onTap = { callbacks.value.onTap(entry.media.id) },
                         onLongPress = { callbacks.value.onLongPress(entry.media.id) },
+                        // Placement springs are for deletes; during a pinch they would fight the density switch.
                         modifier = Modifier.animateItem(
                             fadeInSpec = null,
                             fadeOutSpec = null,
-                            placementSpec = spring(stiffness = Spring.StiffnessMediumLow, visibilityThreshold = IntOffset.VisibilityThreshold),
+                            placementSpec = if (zooming) null else spring(stiffness = Spring.StiffnessMediumLow, visibilityThreshold = IntOffset.VisibilityThreshold),
                         ),
                     )
                 }
@@ -305,6 +385,24 @@ private class BuiltLayout(val items: List<Media>, val grouping: Grouping, val by
         this.items === items && this.grouping == grouping && this.byAdded == byAdded
 }
 
+/** Raw pinch scale and the level it is relative to; [displayed] rubber-bands past the first and last level. */
+private class PinchTracker {
+    var raw = 1f
+    var level = ZoomLevel.Default
+
+    fun displayed(): Float = when {
+        raw > 1f && level.zoomIn() == level -> 1f + (raw - 1f) * RUBBER_BAND
+        raw < 1f && level.zoomOut() == level -> 1f - (1f - raw) * RUBBER_BAND
+        else -> raw
+    }
+}
+
+/** Switch a bit before cells reach the next level's size, so the new grid settles instead of jumping. */
+private fun commitScale(from: ZoomLevel, to: ZoomLevel): Float =
+    (from.columns.toFloat() / to.columns).pow(COMMIT_FRACTION)
+
+private const val RUBBER_BAND = 0.15f
+private const val COMMIT_FRACTION = 0.6f
 private val GAP = 2.dp
 private const val HEADER = 0
 private const val CELL = 1

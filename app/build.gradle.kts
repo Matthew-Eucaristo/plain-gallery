@@ -20,8 +20,8 @@ android {
 
     defaultConfig {
         applicationId = "app.plaingallery"
-        versionCode = 3
-        versionName = "0.1.2"
+        versionCode = 4
+        versionName = "0.2.0"
     }
 
     signingConfigs {
@@ -60,6 +60,7 @@ dependencies {
     implementation(project(":feature:search"))
     implementation(project(":feature:tidy"))
     implementation(project(":feature:settings"))
+    implementation(project(":feature:editor"))
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)

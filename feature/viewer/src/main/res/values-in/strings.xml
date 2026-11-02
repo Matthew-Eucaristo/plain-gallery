@@ -2,7 +2,6 @@
 <resources>
     <string name="action_edit">Edit</string>
     <string name="action_info">Info</string>
-    <string name="edit_with">Edit dengan</string>
     <string name="info_title">Detail</string>
     <string name="info_date">Tanggal</string>
     <string name="info_file">File</string>
@@ -13,5 +12,4 @@
     <string name="open_in_maps">Buka di peta</string>
     <string name="play">Putar</string>
     <string name="pause">Jeda</string>
-    <string name="no_editor">Tidak ada app untuk mengedit</string>
 </resources>

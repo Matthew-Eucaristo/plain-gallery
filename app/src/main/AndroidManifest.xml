@@ -25,10 +25,6 @@
             <action android:name="android.intent.action.SEND" />
             <data android:mimeType="*/*" />
         </intent>
-        <intent>
-            <action android:name="android.intent.action.EDIT" />
-            <data android:mimeType="image/*" />
-        </intent>
     </queries>
 
     <application
@@ -69,6 +65,19 @@
                 <data android:scheme="file" />
                 <data android:mimeType="image/*" />
                 <data android:mimeType="video/*" />
+            </intent-filter>
+        </activity>
+
+        <!-- Built-in photo editor; also offered to other apps that ask to edit an image. -->
+        <activity
+            android:name=".EditActivity"
+            android:exported="true"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|density|uiMode">
+            <intent-filter>
+                <action android:name="android.intent.action.EDIT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+                <data android:mimeType="image/*" />
             </intent-filter>
         </activity>
 

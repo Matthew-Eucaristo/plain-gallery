@@ -1,0 +1,2 @@
+Editor foto bawaan: potong, putar, filter, atur cahaya/warna, dan coret, disimpan sebagai salinan.
+Pinch untuk mengubah kepadatan grid kini lebih mulus.

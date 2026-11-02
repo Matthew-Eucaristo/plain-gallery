@@ -2,7 +2,6 @@
 <resources>
     <string name="action_edit">Edit</string>
     <string name="action_info">Info</string>
-    <string name="edit_with">Edit with</string>
     <string name="info_title">Details</string>
     <string name="info_date">Date</string>
     <string name="info_file">File</string>
@@ -13,5 +12,4 @@
     <string name="open_in_maps">Open in maps</string>
     <string name="play">Play</string>
     <string name="pause">Pause</string>
-    <string name="no_editor">No editing app installed</string>
 </resources>

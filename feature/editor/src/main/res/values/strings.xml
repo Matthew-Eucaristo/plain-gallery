@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="editor_close">Close</string>
+    <string name="editor_save">Save copy</string>
+    <string name="editor_saved">Saved as a copy</string>
+    <string name="editor_save_failed">Couldn\'t save the photo</string>
+    <string name="editor_open_failed">Couldn\'t open this photo</string>
+    <string name="editor_discard_title">Discard your changes?</string>
+    <string name="editor_discard">Discard</string>
+    <string name="editor_keep_editing">Keep editing</string>
+    <string name="editor_tool_crop">Crop</string>
+    <string name="editor_tool_adjust">Adjust</string>
+    <string name="editor_tool_markup">Markup</string>
+    <string name="editor_rotate">Rotate</string>
+    <string name="editor_flip">Flip</string>
+    <string name="editor_reset">Reset</string>
+    <string name="editor_aspect_free">Free</string>
+    <string name="editor_aspect_original">Original</string>
+    <string name="editor_aspect_square">Square</string>
+    <string name="editor_filter_original">Original</string>
+    <string name="editor_filter_vivid">Vivid</string>
+    <string name="editor_filter_warm">Warm</string>
+    <string name="editor_filter_cool">Cool</string>
+    <string name="editor_filter_mono">B&amp;W</string>
+    <string name="editor_filter_fade">Fade</string>
+    <string name="editor_brightness">Brightness</string>
+    <string name="editor_contrast">Contrast</string>
+    <string name="editor_saturation">Saturation</string>
+    <string name="editor_warmth">Warmth</string>
+    <string name="editor_compare_hint">Touch and hold the photo to compare</string>
+    <string name="editor_pen">Pen</string>
+    <string name="editor_highlighter">Highlighter</string>
+    <string name="editor_size_thin">Thin</string>
+    <string name="editor_size_medium">Medium</string>
+    <string name="editor_size_thick">Thick</string>
+    <string name="editor_color">Color %1$d</string>
+</resources>
