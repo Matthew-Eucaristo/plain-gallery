@@ -41,7 +41,8 @@ Phone galleries show ads; cloud galleries keep asking to back up until your free
 ## Install
 
 - **GitHub Releases**: download the APK from [Releases](https://github.com/Matthew-Eucaristo/plain-gallery/releases).
-- **F-Droid** and **Google Play**: coming soon.
+- **Google Play**: in review (closed testing first).
+- **F-Droid**: coming soon.
 
 Requires Android 11 or later.
 
