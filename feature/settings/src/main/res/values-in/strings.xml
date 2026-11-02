@@ -16,4 +16,6 @@
     <string name="settings_about">Tentang</string>
     <string name="settings_about_body">Tanpa akses internet. Tanpa iklan. Tanpa akun. Open source.</string>
     <string name="settings_version">Versi %1$s</string>
+    <string name="settings_privacy_policy">Kebijakan privasi</string>
+    <string name="settings_source_code">Kode sumber</string>
 </resources>

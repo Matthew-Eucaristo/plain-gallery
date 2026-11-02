@@ -1,0 +1,1 @@
+Adds links to the privacy policy and source code in Settings.

@@ -23,6 +23,7 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -36,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import app.plaingallery.core.data.settings.SettingsRepository
 import app.plaingallery.core.ui.LocalDataGraph
@@ -115,10 +117,20 @@ fun SettingsScreen(onBack: () -> Unit) {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                // Opens in the browser; the app itself has no network access.
+                TextButton(onClick = { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, PRIVACY_URL.toUri())) } }) {
+                    Text(stringResource(R.string.settings_privacy_policy))
+                }
+                TextButton(onClick = { runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, SOURCE_URL.toUri())) } }) {
+                    Text(stringResource(R.string.settings_source_code))
+                }
             }
         }
     }
 }
+
+private const val PRIVACY_URL = "https://github.com/Matthew-Eucaristo/plain-gallery/blob/main/PRIVACY.md"
+private const val SOURCE_URL = "https://github.com/Matthew-Eucaristo/plain-gallery"
 
 @Composable
 private fun Section(title: String, body: String?, content: @Composable () -> Unit) {

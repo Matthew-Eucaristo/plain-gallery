@@ -17,4 +17,6 @@
     <string name="settings_about">About</string>
     <string name="settings_about_body">No internet access. No ads. No accounts. Open source.</string>
     <string name="settings_version">Version %1$s</string>
+    <string name="settings_privacy_policy">Privacy policy</string>
+    <string name="settings_source_code">Source code</string>
 </resources>
