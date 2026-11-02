@@ -19,8 +19,9 @@ Product spec and roadmap: `docs/SPEC.md`.
 - Convention plugins live in `build-logic/convention` (`plaingallery.android.*`).
 
 ## Invariants
-- **No network.** Manifest removes `INTERNET`, `ACCESS_NETWORK_STATE`, `WAKE_LOCK`. Verify after dependency changes:
-  `$ANDROID_HOME/build-tools/37.0.0/aapt2 dump permissions app/build/outputs/apk/release/app-release.apk`.
+- **No network.** Manifest removes `INTERNET`, `ACCESS_NETWORK_STATE`, `WAKE_LOCK`. `scripts/check-permissions.sh <apk>` enforces an allowlist (CI runs it).
+- **No secrets or PII in the repo.** Signing comes from `~/.gradle/gradle.properties` / CI env (`plaingallery.*`, `PLAINGALLERY_*`); see `docs/RELEASING.md`.
+- No proprietary dependencies (F-Droid eligible); APKs exclude the dependency-info blob.
 - **Speed first.** UI renders from the Room index, never waits on MediaStore. Sync is an incremental `_ID`/`GENERATION_MODIFIED` diff.
   All screens read one `Library` snapshot; first frames use `MediaRepository.snapshot()` so nothing flashes empty.
 - Thumbnails come from `ContentResolver.loadThumbnail` at one size (`THUMBNAIL_PX`), memory cache only, no disk cache.
@@ -39,11 +40,17 @@ Product spec and roadmap: `docs/SPEC.md`.
 - Emulator testing: adb tap helpers break in zsh (no word splitting); write them as bash scripts.
 - MediaStore renames trashed files to `.trashed-<expiry>-<name>`; show the original name.
 
+## Release & store assets
+- CI: `.github/workflows/ci.yml` (tests, lint, release build, permission check). Release: push tag `vX.Y.Z` matching `versionName` → `release.yml`.
+- Store listing (Play + F-Droid): `fastlane/metadata/android/{en-US,id}`; screenshots there are reused by the README.
+- Store title is "Plain Gallery"; the launcher label is "Gallery".
+
 ## Commands
 ```bash
 ./gradlew testDebugUnitTest          # unit tests (model, data)
 ./gradlew :app:assembleDebug         # debug APK
-./gradlew :app:assembleRelease       # R8 release APK, signed with the debug key for sideloading
+./gradlew :app:assembleRelease       # R8 release APK (upload key if configured, else debug key)
+./gradlew :app:bundleRelease         # AAB for Google Play
 ./gradlew lintDebug                  # lint all modules
 ./gradlew :app:generateReleaseBaselineProfile   # needs a device/emulator with photos
 ```

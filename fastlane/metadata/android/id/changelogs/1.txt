@@ -1,0 +1,1 @@
+Rilis pertama: Foto, Kiriman, Album, dan Cari; Rapikan dengan geser; viewer default; bagikan dengan konversi format dan kompres video.

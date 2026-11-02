@@ -1,16 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- A rounded photo frame with a sun and two hills, inside the 66dp safe zone. -->
+    <!-- Two stacked photos inside the 66dp safe zone: a tilted one behind, a landscape in front. -->
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:rotation="-10">
+        <path
+            android:fillColor="#59FFFFFF"
+            android:pathData="M37,33h34a7,7 0,0 1,7 7v26a7,7 0,0 1,-7 7h-34a7,7 0,0 1,-7 -7v-26a7,7 0,0 1,7 -7z" />
+    </group>
     <path
         android:fillColor="#FFFFFFFF"
-        android:pathData="M38,34h32a8,8 0,0 1,8 8v24a8,8 0,0 1,-8 8h-32a8,8 0,0 1,-8 -8v-24a8,8 0,0 1,8 -8z" />
+        android:pathData="M39,38h34a7,7 0,0 1,7 7v26a7,7 0,0 1,-7 7h-34a7,7 0,0 1,-7 -7v-26a7,7 0,0 1,7 -7z" />
     <path
-        android:fillColor="#FF2F5BA8"
-        android:pathData="M35,68l12,-14l8,9l6,-6l12,11z" />
+        android:fillColor="#FF7FA3FF"
+        android:pathData="M36,73l13,-16l8,9l6,-7l14,14z" />
     <path
-        android:fillColor="#FFF4B400"
-        android:pathData="M64,47m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+        android:fillColor="#FF2B3FA8"
+        android:pathData="M36,73l13,-16l8,9l-9,7z" />
+    <path
+        android:fillColor="#FFFFB300"
+        android:pathData="M66,51m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
 </vector>

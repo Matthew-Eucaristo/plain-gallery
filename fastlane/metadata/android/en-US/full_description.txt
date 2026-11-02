@@ -1,0 +1,21 @@
+A photo gallery that just works. No ads, no accounts, no "back up your photos?" prompts, and no internet permission at all, so your photos never leave your phone.
+
+<b>Built for speed</b>
+Opens instantly, scrolls smoothly through years of photos, and deletes, shares and searches without waiting.
+
+<b>Photos and Inbox, kept apart</b>
+Your camera photos live in Photos. WhatsApp images, screenshots, downloads and Telegram media land in Inbox, where you can clean them up in one tap or swipe through them: left to delete, right to keep.
+
+<b>Search that understands you</b>
+Type "wa july 2024", "screenshot yesterday", "video favorites", "eid 2023" or part of a file name. Works in English and Indonesian.
+
+<b>Share without thinking</b>
+One tap to WhatsApp or the app you used last. The recommended setting converts only what other apps can't open (HEIC, AVIF, RAW photos to JPEG; HEVC, VP9, AV1, WebM, MKV videos to MP4). Choose Small to shrink photos and videos, or pick the format and size yourself.
+
+<b>Opens everything</b>
+JPEG, PNG, WebP, GIF, HEIC/HEIF, AVIF, DNG and BMP photos; MP4, MOV, 3GP, MKV, WebM and AVI videos with H.264, HEVC, VP8/VP9, AV1 and MPEG-4. Ultra HDR photos on Android 14 and later. Can be your default viewer for photos and videos from any app and from the camera.
+
+<b>Safe</b>
+Deleted items go to the system Trash for 30 days, with Undo. Follows your system light/dark mode and wallpaper colors.
+
+Open source (Apache 2.0). Requires Android 11 or later.

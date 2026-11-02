@@ -1,0 +1,21 @@
+Galeri foto yang langsung jalan. Tanpa iklan, tanpa akun, tanpa ajakan "backup foto kamu?", dan sama sekali tanpa izin internet, jadi fotomu tidak pernah keluar dari HP.
+
+<b>Dibuat untuk cepat</b>
+Terbuka seketika, scroll mulus melewati foto bertahun-tahun, serta hapus, bagikan, dan cari tanpa menunggu.
+
+<b>Foto dan Kiriman, dipisah</b>
+Foto kamera ada di Foto. Gambar WhatsApp, screenshot, unduhan, dan media Telegram masuk ke Kiriman, yang bisa dibersihkan sekali ketuk atau digeser satu per satu: kiri untuk buang, kanan untuk simpan.
+
+<b>Pencarian yang mengerti</b>
+Ketik "wa juli 2024", "screenshot kemarin", "video favorit", "lebaran 2023", atau sebagian nama file. Bisa bahasa Indonesia dan Inggris.
+
+<b>Bagikan tanpa repot</b>
+Sekali ketuk ke WhatsApp atau app yang terakhir dipakai. Setelan Disarankan hanya mengonversi yang tidak bisa dibuka app lain (foto HEIC, AVIF, RAW jadi JPEG; video HEVC, VP9, AV1, WebM, MKV jadi MP4). Pilih Hemat untuk mengecilkan foto dan video, atau atur sendiri format dan ukurannya.
+
+<b>Membuka semua format</b>
+Foto JPEG, PNG, WebP, GIF, HEIC/HEIF, AVIF, DNG, BMP; video MP4, MOV, 3GP, MKV, WebM, AVI dengan H.264, HEVC, VP8/VP9, AV1, MPEG-4. Foto Ultra HDR di Android 14 ke atas. Bisa jadi viewer default untuk foto dan video dari app mana pun dan dari kamera.
+
+<b>Aman</b>
+Item yang dihapus masuk ke Sampah sistem selama 30 hari, bisa diurungkan. Mengikuti mode terang/gelap dan warna wallpaper.
+
+Open source (Apache 2.0). Butuh Android 11 ke atas.

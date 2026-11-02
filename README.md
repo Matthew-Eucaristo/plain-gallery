@@ -1,19 +1,53 @@
-# Gallery
+<p align="center">
+  <img src="fastlane/metadata/android/en-US/images/icon.png" width="96" alt="Gallery icon">
+</p>
 
-A photo gallery for Android that just works: no ads, no backup nagging, no internet permission.
+<h1 align="center">Plain Gallery</h1>
 
-- **Photos** — your camera roll and other memories, grouped by day/month/year; pinch to change density, drag the scrubber to fly through years.
-- **Inbox** — WhatsApp images, screenshots, downloads and Telegram media, kept apart from your memories, with one-tap clean-up and a swipe-to-tidy mode.
-- **Search** — understands Indonesian and English: `wa juli 2024`, `screenshot kemarin`, `lebaran 2023`, `video favorit`, or part of a file name.
-- **Share** — one tap to WhatsApp or the app you used last. *Recommended* (default) converts only what other apps can't open (HEIC/AVIF/RAW → JPEG, HEVC/VP9/AV1/WebM/MKV → H.264 MP4); also *Original*, *Small* (1600 px photos, 720p video) and *Custom* (JPG/PNG/WebP, photo size, 1080p/720p/480p).
-- **Default viewer** — open photos and videos from any app or the camera's preview button.
-- **Formats** — JPEG, PNG, WebP, GIF, HEIC/HEIF, AVIF, DNG, BMP; MP4, MOV, 3GP, MKV, WebM, AVI with H.264, HEVC, VP8/9, AV1, MPEG-4. Ultra HDR on Android 14+.
-- Follows system light/dark and wallpaper colors.
-- Fast by design: local index, system thumbnail cache, optimistic deletes with undo, Baseline Profile. Release APK ≈ 5 MB.
+<p align="center">
+  A photo gallery for Android that just works.<br>
+  No ads, no backup nagging, no internet permission.
+</p>
 
-Requires Android 11+. Built with Kotlin, Jetpack Compose, Material 3 Expressive, Navigation 3, Room 3, Coil 3, Media3.
+<p align="center">
+  <a href="https://github.com/Matthew-Eucaristo/plain-gallery/actions/workflows/ci.yml"><img src="https://github.com/Matthew-Eucaristo/plain-gallery/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="License: Apache 2.0"></a>
+  <img src="https://img.shields.io/badge/Android-11%2B-3DDC84" alt="Android 11+">
+  <img src="https://img.shields.io/badge/internet-none-success" alt="No internet permission">
+</p>
 
-See [docs/SPEC.md](docs/SPEC.md) for the product spec and roadmap, and [AGENTS.md](AGENTS.md) for architecture and contributor notes.
+<p align="center">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="19%" alt="Photos">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="19%" alt="Inbox">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="19%" alt="Share">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width="19%" alt="Tidy">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width="19%" alt="Albums, dark">
+</p>
+
+## Why
+
+Phone galleries show ads; cloud galleries keep asking to back up until your free storage is full. Plain Gallery is just a gallery: fast, simple enough for parents, and physically unable to upload anything because it has no network access.
+
+## Features
+
+- **Photos and Inbox, kept apart.** Camera photos in *Photos*; WhatsApp images, screenshots, downloads and Telegram media in *Inbox*, with one-tap clean-up of old items and a swipe-to-tidy mode (left to delete, right to keep).
+- **Fast.** Local index with incremental sync, system thumbnail cache, Baseline Profile, optimistic deletes with Undo. Pinch to change density, drag the scrubber through years.
+- **Search that understands you**, in English and Indonesian: `wa july 2024`, `screenshot yesterday`, `video favorites`, `eid 2023`, or part of a file name.
+- **Share in one tap** to WhatsApp or the app you used last. *Recommended* (default) converts only what other apps can't open: HEIC/AVIF/RAW → JPEG, HEVC/VP9/AV1/WebM/MKV → H.264 MP4. Also *Original*, *Small* (1600 px photos, 720p video) and *Custom* (JPG/PNG/WebP, photo size, 1080p/720p/480p).
+- **Opens everything**: JPEG, PNG, WebP, GIF, HEIC/HEIF, AVIF, DNG, BMP; MP4, MOV, 3GP, MKV, WebM, AVI with H.264, HEVC, VP8/9, AV1, MPEG-4. Ultra HDR on Android 14+.
+- **Default viewer** for photos and videos from any app and from the camera's preview button.
+- **Safe**: deletes go to the system Trash for 30 days. Follows system light/dark and wallpaper colors.
+
+## Install
+
+- **GitHub Releases**: download the APK from [Releases](https://github.com/Matthew-Eucaristo/plain-gallery/releases).
+- **F-Droid** and **Google Play**: coming soon.
+
+Requires Android 11 or later.
+
+## Privacy
+
+No internet permission, no accounts, no analytics, no ads. CI fails the build if the APK ever requests network access. See [PRIVACY.md](PRIVACY.md).
 
 ## Build
 
@@ -22,9 +56,15 @@ See [docs/SPEC.md](docs/SPEC.md) for the product spec and roadmap, and [AGENTS.m
 adb install app/build/outputs/apk/release/app-release.apk
 ```
 
+Kotlin, Jetpack Compose, Material 3 Expressive, Navigation 3, Room 3, Coil 3, Telephoto, Media3 (ExoPlayer, Transformer).
+
+- [docs/SPEC.md](docs/SPEC.md) — product spec and roadmap (Indonesian)
+- [AGENTS.md](AGENTS.md) — architecture, invariants and checks
+- [docs/RELEASING.md](docs/RELEASING.md) — signing, Google Play, F-Droid
+
 ## Contributing
 
-Issues and pull requests are welcome. Read [AGENTS.md](AGENTS.md) for the architecture, invariants (no network, speed first, strings in English and Indonesian) and the checks to run before sending a change.
+Issues and pull requests are welcome. Read [AGENTS.md](AGENTS.md) first: the app must stay offline and fast, and every string needs English and Indonesian.
 
 ## License
 
