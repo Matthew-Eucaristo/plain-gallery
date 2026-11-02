@@ -42,7 +42,6 @@ Phone galleries show ads; cloud galleries keep asking to back up until your free
 
 - **GitHub Releases**: download the APK from [Releases](https://github.com/Matthew-Eucaristo/plain-gallery/releases).
 - **Google Play**: in review (closed testing first).
-- **F-Droid**: coming soon.
 
 Requires Android 11 or later.
 
@@ -61,7 +60,7 @@ Kotlin, Jetpack Compose, Material 3 Expressive, Navigation 3, Room 3, Coil 3, Te
 
 - [docs/SPEC.md](docs/SPEC.md) — product spec and roadmap (Indonesian)
 - [AGENTS.md](AGENTS.md) — architecture, invariants and checks
-- [docs/RELEASING.md](docs/RELEASING.md) — signing, Google Play, F-Droid
+- [docs/RELEASING.md](docs/RELEASING.md) — signing, Google Play
 
 ## Contributing
 

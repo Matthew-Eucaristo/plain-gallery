@@ -1,0 +1,1 @@
+Memperbaiki judul layar sambutan yang tidak terbaca di mode gelap.

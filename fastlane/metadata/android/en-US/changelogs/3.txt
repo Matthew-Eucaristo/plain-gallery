@@ -1,0 +1,1 @@
+Fixes the welcome title being unreadable in dark mode.

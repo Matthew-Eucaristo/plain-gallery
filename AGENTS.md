@@ -21,7 +21,7 @@ Product spec and roadmap: `docs/SPEC.md`.
 ## Invariants
 - **No network.** Manifest removes `INTERNET`, `ACCESS_NETWORK_STATE`, `WAKE_LOCK`. `scripts/check-permissions.sh <apk>` enforces an allowlist (CI runs it).
 - **No secrets or PII in the repo.** Signing comes from `~/.gradle/gradle.properties` / CI env (`plaingallery.*`, `PLAINGALLERY_*`); see `docs/RELEASING.md`.
-- No proprietary dependencies (F-Droid eligible); APKs exclude the dependency-info blob.
+- No proprietary dependencies; APKs exclude the dependency-info blob.
 - **Speed first.** UI renders from the Room index, never waits on MediaStore. Sync is an incremental `_ID`/`GENERATION_MODIFIED` diff.
   All screens read one `Library` snapshot; first frames use `MediaRepository.snapshot()` so nothing flashes empty.
 - Thumbnails come from `ContentResolver.loadThumbnail` at one size (`THUMBNAIL_PX`), memory cache only, no disk cache.
@@ -42,7 +42,7 @@ Product spec and roadmap: `docs/SPEC.md`.
 
 ## Release & store assets
 - CI: `.github/workflows/ci.yml` (tests, lint, release build, permission check). Release: push tag `vX.Y.Z` matching `versionName` → `release.yml`.
-- Store listing (Play + F-Droid): `fastlane/metadata/android/{en-US,id}`; screenshots there are reused by the README.
+- Store listing (Play): `fastlane/metadata/android/{en-US,id}`; screenshots there are reused by the README.
 - Store title is "Plain Gallery"; the launcher label is "Gallery".
 
 ## Commands

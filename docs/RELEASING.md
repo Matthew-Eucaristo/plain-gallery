@@ -2,7 +2,7 @@
 
 ## Signing
 
-Releases are signed with an **upload key**; Google Play re-signs them with its own app signing key (Play App Signing). F-Droid builds from source and signs with its own key.
+Releases are signed with an **upload key**; Google Play re-signs them with its own app signing key (Play App Signing).
 
 Release builds read the key from Gradle properties or environment variables, never from the repo:
 
@@ -19,7 +19,7 @@ Without them, release builds fall back to the debug key (fine for local testing)
 
 ### GitHub secrets for the release workflow
 
-Run these yourself from the repo folder (they upload the key to GitHub's encrypted secrets):
+Already configured. To set or rotate them, run from the repo folder (they upload the key to GitHub's encrypted secrets):
 
 ```bash
 base64 -i "$(grep '^plaingallery.keystore=' ~/.gradle/gradle.properties | cut -d= -f2)" | gh secret set PLAINGALLERY_KEYSTORE_BASE64
@@ -48,34 +48,3 @@ Local equivalent: `./gradlew :app:assembleRelease :app:bundleRelease` →
    - **Photo and video permissions** declaration: core functionality is a gallery that manages the user's photos and videos (browse, organize, share, delete), so it needs persistent broad access.
 4. **Store listing**: texts and graphics are in `fastlane/metadata/android/en-US` (and `id` for Indonesian): `images/icon.png` (512×512), `images/featureGraphic.png` (1024×500), `images/phoneScreenshots/*.png`.
 5. Personal developer accounts created after November 2023 must run a **closed test with at least 12 testers for 14 days** before applying for production access.
-
-## F-Droid
-
-The app has no proprietary dependencies, no network access and ships fastlane metadata, so it is eligible for the main F-Droid repo.
-
-1. Make sure a tagged release exists (`v0.1.0`).
-2. Open a merge request to [fdroiddata](https://gitlab.com/fdroid/fdroiddata) adding `metadata/app.plaingallery.yml`:
-
-```yaml
-Categories:
-  - Gallery
-License: Apache-2.0
-SourceCode: https://github.com/Matthew-Eucaristo/plain-gallery
-IssueTracker: https://github.com/Matthew-Eucaristo/plain-gallery/issues
-
-RepoType: git
-Repo: https://github.com/Matthew-Eucaristo/plain-gallery.git
-
-Builds:
-  - versionName: 0.1.0
-    versionCode: 1
-    commit: v0.1.0
-    subdir: app
-    gradle:
-      - yes
-
-AutoUpdateMode: Version
-UpdateCheckMode: Tags
-CurrentVersion: 0.1.0
-CurrentVersionCode: 1
-```

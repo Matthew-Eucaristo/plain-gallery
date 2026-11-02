@@ -8,7 +8,7 @@ plugins {
 /**
  * Release signing comes from Gradle properties (`~/.gradle/gradle.properties`) or environment
  * variables in CI, never from the repo. Without them, release builds use the debug key, which is
- * fine for local testing and for F-Droid (it signs with its own key).
+ * fine for local testing.
  */
 fun signingValue(name: String): String? =
     providers.gradleProperty("plaingallery.$name").orNull ?: providers.environmentVariable("PLAINGALLERY_${name.uppercase()}").orNull
@@ -20,8 +20,8 @@ android {
 
     defaultConfig {
         applicationId = "app.plaingallery"
-        versionCode = 2
-        versionName = "0.1.1"
+        versionCode = 3
+        versionName = "0.1.2"
     }
 
     signingConfigs {
@@ -44,7 +44,7 @@ android {
         }
     }
 
-    // F-Droid rejects the encrypted dependency blob in APKs; Play reads it from bundles.
+    // Keep the encrypted dependency blob out of APKs (third-party stores reject it); Play reads it from bundles.
     dependenciesInfo {
         includeInApk = false
         includeInBundle = true
