@@ -15,7 +15,7 @@ Product spec and roadmap: `docs/SPEC.md`.
 - `core:data` — MediaStore scanner, Room index, `MediaRepository` (sync + optimistic hide/favorite), `MediaWriter` (create*Request), share/convert, settings.
 - `core:ui` — theme, thumbnail pipeline, `MediaGrid` (pinch, scrubber, drag-select), `MediaBrowser`, share sheet, `MediaActions`.
 - `feature:{library,viewer,search,tidy,settings}` — screens; features never depend on each other.
-- `app` — Nav3 `NavDisplay` + shared transitions, tabs, permissions. `baselineprofile` — profile generator.
+- `app` — Nav3 `NavDisplay` + shared transitions, tabs, permissions; `ViewerActivity` handles VIEW/REVIEW intents (default viewer). `baselineprofile` — profile generator.
 - Convention plugins live in `build-logic/convention` (`plaingallery.android.*`).
 
 ## Invariants
@@ -29,11 +29,14 @@ Product spec and roadmap: `docs/SPEC.md`.
 - String resource names must be unique across modules (they merge in the app). Check:
   `grep -ho 'name="[^"]*"' */*/src/main/res/values/strings.xml app/src/main/res/values/strings.xml | sort | uniq -d`.
 - Every user-visible string exists in `values` (English) and `values-in` (Indonesian).
+- Share conversion rules live only in `SharePlanner` (pure, unit-tested); `MediaConverter` executes them (ImageDecoder → JPEG/PNG/WebP, Media3 Transformer → H.264/AAC MP4). A failed conversion sends the original. Default preset is Recommended.
+- Theme follows the system (light/dark, dynamic color); no in-app override.
 
 ## Gotchas
 - `LazyGridItemInfo.offset` excludes top content padding; hit-test with `viewportStartOffset` (see `GridGestures.kt`).
   Screen header items precede grid entries, so grid index = header count + entry index.
-- Video: some hardware decoders (and the emulator's goldfish decoder) fail; `ViewerPlayer` retries with software decoders.
+- Video: some hardware decoders (and the emulator's goldfish decoder) fail. `Codecs.selector` puts software decoders first after one failure; used by `ViewerPlayer` (PlaybackException 4001–4003) and `MediaConverter` (ExportException 3001–3002; different code ranges).
+- Emulator testing: adb tap helpers break in zsh (no word splitting); write them as bash scripts.
 - MediaStore renames trashed files to `.trashed-<expiry>-<name>`; show the original name.
 
 ## Commands

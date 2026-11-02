@@ -3,4 +3,9 @@
     <style name="Theme.Gallery" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@color/window_background</item>
     </style>
+
+    <!-- Black from the first frame, so opening a photo from another app never flashes white. -->
+    <style name="Theme.Gallery.Viewer" parent="Theme.Gallery">
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
 </resources>

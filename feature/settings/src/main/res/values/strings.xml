@@ -6,6 +6,9 @@
     <string name="settings_manage_media_on">Allowed</string>
     <string name="settings_manage_media_off">Allow</string>
     <string name="settings_manage_media_unsupported">Needs Android 12 or later.</string>
+    <string name="settings_default_viewer">Open photos with Gallery</string>
+    <string name="settings_default_viewer_body">When you open a photo or video from another app, pick Gallery and tap \"Always\". The camera\'s preview button opens Gallery too.</string>
+    <string name="settings_default_viewer_action">Default apps</string>
     <string name="settings_stale">Inbox items count as old after</string>
     <plurals name="settings_days">
         <item quantity="one">%d day</item>

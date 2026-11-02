@@ -1,6 +1,7 @@
 package app.plaingallery.feature.viewer
 
 import android.content.Context
+import android.net.Uri
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -41,10 +42,10 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.ui.compose.ContentFrame
 import androidx.media3.ui.compose.state.rememberPlayPauseButtonState
 import androidx.media3.ui.compose.state.rememberProgressStateWithTickInterval
+import app.plaingallery.core.data.Codecs
 import app.plaingallery.core.data.contentUri
 import app.plaingallery.core.model.Media
 import app.plaingallery.core.ui.format.formatDuration
@@ -73,27 +74,19 @@ internal class ViewerPlayer(private val context: Context) {
     }
 
     private fun build(): ExoPlayer {
-        val selector = MediaCodecSelector { mimeType, secure, tunneling ->
-            val decoders = MediaCodecSelector.DEFAULT.getDecoderInfos(mimeType, secure, tunneling)
-            if (preferSoftware) decoders.sortedByDescending { it.softwareOnly } else decoders
-        }
         val renderers = DefaultRenderersFactory(context)
             .setEnableDecoderFallback(true)
-            .setMediaCodecSelector(selector)
+            .setMediaCodecSelector(Codecs.selector { preferSoftware })
         return ExoPlayer.Builder(context, renderers).build().apply {
             addListener(object : Player.Listener {
                 override fun onPlayerError(error: PlaybackException) {
-                    if (!preferSoftware && error.errorCode in DECODER_ERRORS) {
+                    if (!preferSoftware && Codecs.isDecoderError(error.errorCode)) {
                         preferSoftware = true
                         prepare()
                     }
                 }
             })
         }
-    }
-
-    private companion object {
-        val DECODER_ERRORS = PlaybackException.ERROR_CODE_DECODER_INIT_FAILED..PlaybackException.ERROR_CODE_DECODING_FAILED
     }
 }
 
@@ -106,7 +99,6 @@ internal fun rememberViewerPlayer(): ViewerPlayer {
     return holder
 }
 
-@OptIn(UnstableApi::class)
 @Composable
 internal fun VideoPage(
     media: Media,
@@ -115,30 +107,49 @@ internal fun VideoPage(
     showControls: Boolean,
     onTap: () -> Unit,
 ) {
+    VideoContent(
+        uri = media.contentUri,
+        holder = holder,
+        active = active,
+        showControls = showControls,
+        onTap = onTap,
+        modifier = Modifier.sharedMedia(media.id),
+        poster = { Poster(media) },
+    )
+}
+
+/** Plays [uri] while [active]; otherwise shows [poster] with a play badge. */
+@OptIn(UnstableApi::class)
+@Composable
+internal fun VideoContent(
+    uri: Uri,
+    holder: ViewerPlayer,
+    active: Boolean,
+    showControls: Boolean,
+    onTap: () -> Unit,
+    modifier: Modifier = Modifier,
+    poster: @Composable () -> Unit,
+) {
     val tapModifier = Modifier.clickable(
         interactionSource = remember { MutableInteractionSource() },
         indication = null,
         onClick = onTap,
     )
-    Box(Modifier.fillMaxSize().then(tapModifier).sharedMedia(media.id)) {
+    Box(Modifier.fillMaxSize().then(tapModifier).then(modifier)) {
         if (active) {
             val player = holder.player
-            LaunchedEffect(media.id) {
-                player.setMediaItem(MediaItem.fromUri(media.contentUri))
+            LaunchedEffect(uri) {
+                player.setMediaItem(MediaItem.fromUri(uri))
                 player.prepare()
                 player.playWhenReady = true
             }
-            DisposableEffect(media.id) { onDispose { player.stop() } }
-            ContentFrame(
-                player = player,
-                modifier = Modifier.fillMaxSize(),
-                shutter = { Poster(media) },
-            )
+            DisposableEffect(uri) { onDispose { player.stop() } }
+            ContentFrame(player = player, modifier = Modifier.fillMaxSize(), shutter = poster)
             if (showControls) {
                 VideoControls(player, Modifier.align(Alignment.BottomCenter).padding(bottom = 112.dp))
             }
         } else {
-            Poster(media)
+            poster()
             Icon(
                 Icons.Filled.PlayArrow,
                 contentDescription = null,

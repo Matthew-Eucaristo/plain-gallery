@@ -42,6 +42,7 @@ class ShareRepository internal constructor(
     private val pm get() = context.packageManager
     private val shareDir get() = File(context.cacheDir, "share")
     private val convertDispatcher = Dispatchers.Default.limitedParallelism(2)
+    private val converter = MediaConverter(context)
 
     /** Messaging apps people share to most, then whatever they picked recently from the system sheet. */
     suspend fun quickTargets(): List<ShareTarget> = withContext(Dispatchers.IO) {
@@ -60,30 +61,78 @@ class ShareRepository internal constructor(
         ShareTarget(component, info.loadLabel(pm).toString(), info.loadIcon(pm))
     }.getOrNull()
 
-    /** Rough output size, shown next to the quality options. */
-    fun estimateBytes(items: List<Media>, quality: ShareQuality): Long = items.sumOf { media ->
-        when {
-            media.isVideo || quality == ShareQuality.Original || !media.isConvertible -> media.sizeBytes
-            quality == ShareQuality.Compatible -> if (media.mimeType == JPEG) media.sizeBytes else media.sizeBytes * 3 / 2
-            else -> minOf(media.sizeBytes, SMALL_ESTIMATE_BYTES)
+    /** Per-file plan; reads video codecs from the files, so call off the main thread. */
+    suspend fun plan(items: List<Media>, options: ShareOptions): List<ShareStep> = withContext(Dispatchers.IO) {
+        items.map { media ->
+            val video = if (media.isVideo && options.preset != SharePreset.Original) converter.videoInfo(media.contentUri) else null
+            SharePlanner.plan(media, video, options)
         }
     }
 
-    suspend fun prepare(items: List<Media>, quality: ShareQuality): PreparedShare = coroutineScope {
+    fun estimateBytes(items: List<Media>, steps: List<ShareStep>): Long =
+        items.zip(steps).sumOf { (media, step) -> SharePlanner.estimateBytes(media, step) }
+
+    /**
+     * Converts what the plan says, in parallel for images and one at a time for videos, reporting
+     * overall progress 0..1. A file that fails to convert is sent as the original rather than dropped.
+     */
+    suspend fun prepare(items: List<Media>, steps: List<ShareStep>, onProgress: (Float) -> Unit = {}): PreparedShare = coroutineScope {
         withContext(Dispatchers.IO) { cleanOldFiles() }
-        val uris = items.map { media ->
-            async(convertDispatcher) {
-                when {
-                    media.isVideo || !media.isConvertible || quality == ShareQuality.Original -> media.contentUri
-                    quality == ShareQuality.Compatible && media.mimeType == JPEG -> media.contentUri
-                    quality == ShareQuality.Compatible -> convert(media, maxSide = null, jpegQuality = 95)
-                    else -> convert(media, maxSide = SMALL_MAX_SIDE, jpegQuality = 82)
-                }
+        shareDir.mkdirs()
+        val weights = items.zip(steps).map { (media, step) -> weightOf(media, step) }
+        val total = weights.sum().coerceAtLeast(1f)
+        val done = FloatArray(items.size)
+        val lock = Any()
+        fun report(index: Int, fraction: Float) = synchronized(lock) {
+            done[index] = weights[index] * fraction
+            onProgress(done.sum() / total)
+        }
+
+        val images = items.indices.filter { steps[it] is ShareStep.Image }.map { index ->
+            val step = steps[index] as ShareStep.Image
+            val format = step.format.takeIf { it != ImageFormat.Keep } ?: ImageFormat.Jpeg
+            index to async(convertDispatcher) {
+                convertOrOriginal(items[index], format.extension!!, format.mimeType!!) { out ->
+                    converter.image(items[index].contentUri, step.copy(format = format), out)
+                }.also { report(index, 1f) }
             }
-        }.awaitAll()
-        val mimeType = if (quality == ShareQuality.Original) commonMimeType(items.map { it.mimeType })
-        else commonMimeType(items.map { if (it.isVideo || !it.isConvertible) it.mimeType else JPEG })
-        PreparedShare(uris, mimeType)
+        }
+        val results = arrayOfNulls<Pair<Uri, String>>(items.size)
+        items.forEachIndexed { index, media ->
+            when (val step = steps[index]) {
+                ShareStep.Keep -> results[index] = media.contentUri to media.mimeType
+                is ShareStep.Video -> results[index] = convertOrOriginal(media, "mp4", "video/mp4") { out ->
+                    converter.video(media.contentUri, step, out) { report(index, it) }
+                }.also { report(index, 1f) }
+                is ShareStep.Image -> Unit
+            }
+        }
+        images.forEach { (index, result) -> results[index] = result.await() }
+        val shared = results.map { requireNotNull(it) }
+        PreparedShare(shared.map { it.first }, commonMimeType(shared.map { it.second }))
+    }
+
+    private suspend fun convertOrOriginal(
+        media: Media,
+        extension: String,
+        mimeType: String,
+        convert: suspend (File) -> Unit,
+    ): Pair<Uri, String> {
+        val file = File(shareDir, "${media.displayName.substringBeforeLast('.')}-${media.id}.$extension")
+        return runCatching {
+            convert(file)
+            FileProvider.getUriForFile(context, "${context.packageName}.share", file) to mimeType
+        }.getOrElse { error ->
+            if (error is kotlinx.coroutines.CancellationException) throw error
+            file.delete()
+            media.contentUri to media.mimeType
+        }
+    }
+
+    private fun weightOf(media: Media, step: ShareStep): Float = when (step) {
+        ShareStep.Keep -> 0f
+        is ShareStep.Image -> 1f
+        is ShareStep.Video -> 1f + media.durationMs / 2_000f
     }
 
     fun intent(share: PreparedShare, target: ComponentName?): Intent {
@@ -115,29 +164,10 @@ class ShareRepository internal constructor(
 
     suspend fun recordTarget(component: ComponentName) = settings.recordShareTarget(component.flattenToString())
 
-    private fun convert(media: Media, maxSide: Int?, jpegQuality: Int): Uri {
-        val source = ImageDecoder.createSource(context.contentResolver, media.contentUri)
-        val bitmap = ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
-            decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
-            val longest = max(info.size.width, info.size.height)
-            if (maxSide != null && longest > maxSide) {
-                val scale = maxSide.toFloat() / longest
-                decoder.setTargetSize((info.size.width * scale).roundToInt(), (info.size.height * scale).roundToInt())
-            }
-        }
-        shareDir.mkdirs()
-        val file = File(shareDir, "${media.displayName.substringBeforeLast('.')}-${media.id}.jpg")
-        file.outputStream().use { bitmap.compress(Bitmap.CompressFormat.JPEG, jpegQuality, it) }
-        bitmap.recycle()
-        return FileProvider.getUriForFile(context, "${context.packageName}.share", file)
-    }
-
     private fun cleanOldFiles() {
         val cutoff = System.currentTimeMillis() - SHARE_FILE_TTL_MS
         shareDir.listFiles()?.filter { it.lastModified() < cutoff }?.forEach(File::delete)
     }
-
-    private val Media.isConvertible: Boolean get() = mimeType in CONVERTIBLE
 
     // Share targets are visible through the app manifest's <queries> for ACTION_SEND.
     @SuppressLint("QueryPermissionsNeeded")
@@ -153,12 +183,8 @@ class ShareRepository internal constructor(
         else getActivityInfo(component, 0)
 
     companion object {
-        private const val JPEG = "image/jpeg"
-        private val CONVERTIBLE = setOf(JPEG, "image/heic", "image/heif", "image/avif", "image/webp", "image/png")
         private val PREFERRED_PACKAGES = listOf("com.whatsapp", "com.whatsapp.w4b", "org.telegram.messenger")
         private const val MAX_TARGETS = 4
-        private const val SMALL_MAX_SIDE = 1600
-        private const val SMALL_ESTIMATE_BYTES = 350_000L
         private const val SHARE_FILE_TTL_MS = 60 * 60 * 1000L
 
         internal fun commonMimeType(types: List<String>): String {

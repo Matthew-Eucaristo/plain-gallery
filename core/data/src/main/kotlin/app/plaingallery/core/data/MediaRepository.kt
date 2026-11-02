@@ -28,6 +28,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -36,6 +38,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Single source of truth for the library.
@@ -100,6 +103,13 @@ class MediaRepository internal constructor(
 
     fun stopObserving() {
         scanner.resolver.unregisterContentObserver(observer)
+    }
+
+    /** The item with this MediaStore id, syncing once if it is newer than the index (e.g. just captured). */
+    suspend fun find(id: Long): Media? {
+        library.filterNotNull().first()[id]?.let { return it }
+        sync()
+        return withTimeoutOrNull(FIND_TIMEOUT_MS) { library.filterNotNull().mapNotNull { it[id] }.first() }
     }
 
     fun requestSync() {
@@ -180,5 +190,6 @@ class MediaRepository internal constructor(
     private companion object {
         const val DAY_MS = 86_400_000L
         const val SYNC_DEBOUNCE_MS = 400L
+        const val FIND_TIMEOUT_MS = 1_000L
     }
 }

@@ -1,5 +1,7 @@
 package app.plaingallery.feature.settings
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -86,6 +88,12 @@ fun SettingsScreen(onBack: () -> Unit) {
                         Text(stringResource(R.string.settings_manage_media_off))
                     }
                 }
+            }
+            HorizontalDivider()
+            Section(stringResource(R.string.settings_default_viewer), stringResource(R.string.settings_default_viewer_body)) {
+                FilledTonalButton(onClick = {
+                    runCatching { context.startActivity(Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)) }
+                }) { Text(stringResource(R.string.settings_default_viewer_action)) }
             }
             HorizontalDivider()
             Section(stringResource(R.string.settings_stale), null) {

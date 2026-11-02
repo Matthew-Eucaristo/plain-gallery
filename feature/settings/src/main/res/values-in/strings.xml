@@ -6,6 +6,9 @@
     <string name="settings_manage_media_on">Diizinkan</string>
     <string name="settings_manage_media_off">Izinkan</string>
     <string name="settings_manage_media_unsupported">Butuh Android 12 ke atas.</string>
+    <string name="settings_default_viewer">Buka foto dengan Gallery</string>
+    <string name="settings_default_viewer_body">Saat membuka foto atau video dari app lain, pilih Gallery lalu ketuk \"Selalu\". Tombol pratinjau di kamera juga membuka Gallery.</string>
+    <string name="settings_default_viewer_action">App default</string>
     <string name="settings_stale">Kiriman dianggap lama setelah</string>
     <plurals name="settings_days">
         <item quantity="other">%d hari</item>

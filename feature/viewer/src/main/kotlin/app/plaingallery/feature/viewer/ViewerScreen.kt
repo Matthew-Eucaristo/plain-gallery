@@ -1,6 +1,8 @@
 package app.plaingallery.feature.viewer
 
 import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
@@ -42,6 +44,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -109,6 +112,8 @@ fun ViewerScreen(collection: MediaCollection, initialId: Long, onBack: () -> Uni
     LaunchedEffect(items) { if (items != null && list.isEmpty()) onBack() }
     LaunchedEffect(current?.id) { current?.let { uiState.lastViewedId = it.id } }
     ImmersiveEffect(chromeVisible)
+    val hdrIds = remember { mutableStateSetOf<Long>() }
+    HdrWindowEffect(current?.id in hdrIds)
 
     // Swipe down to close: the photo follows the finger and the background fades.
     val dismissOffset = remember { Animatable(0f) }
@@ -148,7 +153,12 @@ fun ViewerScreen(collection: MediaCollection, initialId: Long, onBack: () -> Uni
             if (media.isVideo) {
                 VideoPage(media, player, active = page == pager.settledPage, showControls = chromeVisible, onTap = toggleChrome)
             } else {
-                ImagePage(media, onTap = toggleChrome, onZoomedChange = { if (page == pager.currentPage) zoomed = it })
+                ImagePage(
+                    media,
+                    onTap = toggleChrome,
+                    onZoomedChange = { if (page == pager.currentPage) zoomed = it },
+                    onHdrChange = { if (it) hdrIds.add(media.id) else hdrIds.remove(media.id) },
+                )
             }
         }
 
@@ -160,7 +170,7 @@ fun ViewerScreen(collection: MediaCollection, initialId: Long, onBack: () -> Uni
         ) {
             current ?: return@AnimatedVisibility
             Box(Modifier.fillMaxSize()) {
-                TopBar(current, onBack, Modifier.align(Alignment.TopCenter))
+                TopBar(dateTimeLabel(current.takenAt), sourceLabel(current), onBack, Modifier.align(Alignment.TopCenter))
                 BottomBar(Modifier.align(Alignment.BottomCenter)) {
                     if (isTrash) {
                         Action(painterResource(UiR.drawable.ic_restore), stringResource(UiR.string.action_restore)) {
@@ -215,7 +225,7 @@ fun ViewerScreen(collection: MediaCollection, initialId: Long, onBack: () -> Uni
 }
 
 @Composable
-private fun TopBar(media: Media, onBack: () -> Unit, modifier: Modifier) {
+internal fun TopBar(title: String, subtitle: String?, onBack: () -> Unit, modifier: Modifier) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -228,20 +238,28 @@ private fun TopBar(media: Media, onBack: () -> Unit, modifier: Modifier) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(UiR.string.action_back), tint = Color.White)
         }
         Column(Modifier.padding(start = 4.dp)) {
-            Text(dateTimeLabel(media.takenAt), color = Color.White, style = MaterialTheme.typography.titleMedium, maxLines = 1)
             Text(
-                sourceLabel(media),
-                color = Color.White.copy(alpha = 0.8f),
-                style = MaterialTheme.typography.bodySmall,
+                title,
+                color = Color.White,
+                style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
+            subtitle?.let {
+                Text(
+                    it,
+                    color = Color.White.copy(alpha = 0.8f),
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun BottomBar(modifier: Modifier, content: @Composable () -> Unit) {
+internal fun BottomBar(modifier: Modifier, content: @Composable () -> Unit) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = modifier
@@ -253,7 +271,7 @@ private fun BottomBar(modifier: Modifier, content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun Action(icon: Painter, label: String, onClick: () -> Unit) {
+internal fun Action(icon: Painter, label: String, onClick: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         IconButton(onClick = onClick) { Icon(icon, contentDescription = label, tint = Color.White) }
         Text(label, color = Color.White, style = MaterialTheme.typography.labelSmall, maxLines = 1)
@@ -262,7 +280,7 @@ private fun Action(icon: Painter, label: String, onClick: () -> Unit) {
 
 /** Hides the system bars with the chrome and keeps their icons light on the black background. */
 @Composable
-private fun ImmersiveEffect(chromeVisible: Boolean) {
+internal fun ImmersiveEffect(chromeVisible: Boolean) {
     val window = LocalActivity.current?.window ?: return
     val view = LocalView.current
     val controller = remember(window, view) { WindowCompat.getInsetsController(window, view) }
@@ -281,6 +299,17 @@ private fun ImmersiveEffect(chromeVisible: Boolean) {
     LaunchedEffect(chromeVisible) {
         if (chromeVisible) controller.show(WindowInsetsCompat.Type.systemBars())
         else controller.hide(WindowInsetsCompat.Type.systemBars())
+    }
+}
+
+/** Lets the display show Ultra HDR photos at full brightness range (Android 14+), only while one is on screen. */
+@Composable
+private fun HdrWindowEffect(enabled: Boolean) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return
+    val window = LocalActivity.current?.window ?: return
+    DisposableEffect(enabled) {
+        window.colorMode = if (enabled) ActivityInfo.COLOR_MODE_HDR else ActivityInfo.COLOR_MODE_DEFAULT
+        onDispose { window.colorMode = ActivityInfo.COLOR_MODE_DEFAULT }
     }
 }
 

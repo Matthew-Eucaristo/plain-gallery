@@ -18,6 +18,8 @@ dependencies {
     implementation(libs.androidx.sqlite.framework)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.exifinterface)
+    implementation(libs.media3.transformer)
+    implementation(libs.media3.effect)
     ksp(libs.androidx.room3.compiler)
 
     testImplementation(libs.junit)

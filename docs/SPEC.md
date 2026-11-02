@@ -73,13 +73,16 @@ Pengaturan dibuka dari ikon di top bar.
 - Video: play/pause, seek.
 
 ### 5.4 Bagikan (sheet sendiri, satu layar)
-- Baris target besar: **WhatsApp**, **WA Business**, **Telegram** (jika terpasang), lalu 2 app terakhir yang dipakai, **Lainnya** (sharesheet sistem).
-- Kualitas (diingat):
+- Baris target besar: **WhatsApp**, **WA Business**, **Telegram** (jika terpasang), lalu app yang terakhir dipakai, **Lainnya** (sharesheet sistem).
+- Preset (diingat), aturannya ada di `SharePlanner` dan diuji unit test:
+  - **Disarankan** (default): yang bisa dibuka semua app dikirim apa adanya (JPEG, PNG, GIF, MP4 H.264/AAC). Sisanya dikonversi: HEIC/HEIF/AVIF/WebP/RAW(DNG)/BMP → JPEG 92; HEVC/VP8/VP9/AV1/MPEG-4, MKV/WebM/MOV/AVI → MP4 H.264/AAC (maks 1080p).
   - **Asli**: file apa adanya.
-  - **Kompatibel**: HEIC/AVIF/WebP/PNG → JPEG kualitas penuh; JPEG dikirim apa adanya.
-  - **Hemat**: JPEG sisi terpanjang 1600 px, kualitas 82. Metadata dibuang.
-- Estimasi ukuran ditampilkan. Video selalu asli (kompres video menyusul di fase 2).
-- Konversi di background; file sementara dibersihkan otomatis.
+  - **Hemat**: foto JPEG 1600 px kualitas 82 (metadata/lokasi terbuang), video H.264 720p 2 Mbps.
+  - **Atur**: format foto (Sama/JPG/PNG/WEBP), ukuran foto (Penuh/2048/1600/1080 px), video (Asli/1080p/720p/480p).
+- GIF tidak pernah di-encode ulang (animasinya bisa hilang). Tidak pernah upscale.
+- Estimasi ukuran dan jumlah file yang dikonversi ditampilkan; progres + Batal saat konversi.
+- Konversi foto: `ImageDecoder` (format apa pun yang didukung platform). Video: Media3 Transformer. Jika konversi satu file gagal, file asli yang dikirim.
+- File sementara dibersihkan otomatis (1 jam).
 
 ### 5.5 Kiriman
 - Chip filter: Semua · WhatsApp · Screenshot · Download · Telegram · Lainnya.
@@ -111,12 +114,23 @@ Pengaturan dibuka dari ikon di top bar.
   - Tanggal: `hari ini`, `kemarin`, `minggu ini`, `minggu lalu`, `bulan ini`, `bulan lalu`, `tahun ini`, `tahun lalu`, nama bulan (+ tahun), `17 agustus 2023`, tahun `2023`, `lebaran 2024`, `natal`, `tahun baru`
   - Sisa kata → dicocokkan ke nama file, nama album, path.
 
-### 5.10 Pengaturan
+### 5.10 Viewer default (buka dengan…)
+- `ViewerActivity` menangani `VIEW`, `android.provider.action.REVIEW`, dan `com.android.camera.action.REVIEW` untuk `image/*` dan `video/*` (content:// dan file://).
+- URI MediaStore yang ada di index dibuka di dalam albumnya (bisa swipe). URI dari app lain (file manager, chat) dibuka sebagai satu item dengan tombol Bagikan.
+- Berjalan di task pemanggil; tombol back kembali ke app asal. Latar hitam sejak frame pertama.
+
+### 5.11 Format
+- Foto: semua yang didekode `ImageDecoder` Android: JPEG, PNG, WebP/GIF (animasi), HEIC/HEIF, AVIF (Android 12+), DNG (RAW), BMP, ICO. Foto Ultra HDR (gain map) ditampilkan dalam mode HDR di Android 14+.
+- Video: kontainer MP4, MOV, 3GP, MKV, WebM, AVI, TS. Codec H.264, HEVC, VP8, VP9, AV1, MPEG-4 (tergantung decoder HP). Jika decoder hardware gagal, otomatis pindah ke software decoder.
+- Tema: mengikuti light/dark sistem dan warna wallpaper (Material You), berubah langsung tanpa restart.
+
+### 5.12 Pengaturan
 - **Hapus tanpa konfirmasi** (izin `MANAGE_MEDIA`, Android 12+).
+- **Buka foto dengan Gallery**: petunjuk + tombol ke pengaturan app default.
 - Batas umur kiriman "lama": 30 / 60 / 90 hari.
 - Tentang: versi, "Tanpa internet. Tanpa iklan. Open source."
 
-### 5.11 Izin
+### 5.13 Izin
 - Satu layar sambutan → `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO`, `ACCESS_MEDIA_LOCATION` (Android 13+), atau `READ_EXTERNAL_STORAGE` (Android 11–12).
 - Akses sebagian (Android 14+): banner "Akses terbatas · Izinkan semua".
 
@@ -161,7 +175,6 @@ Alur data: `MediaStore → (sync diff) → Room → Flow<List<Media>> → Librar
 - OCR on-device opsional (ML Kit text recognition, flavor terpisah agar build inti tetap bebas Google).
 - Pencarian lokasi offline (reverse-geocode GeoNames).
 - Crop/rotate bawaan.
-- Kompres video (Media3 Transformer).
 - Notifikasi saran pembersihan mingguan (WorkManager).
 - Deteksi duplikat/mirip (perceptual hash).
 
@@ -175,7 +188,9 @@ Sudah dibuat dan diuji di emulator Android 17: semua layar di bagian 5, kecuali 
 
 - Pinch-zoom grid belum diuji otomatis (adb tidak bisa multi-touch); perlu dicoba di HP asli.
 - Cold start release dengan Baseline Profile: ~120–160 ms di emulator (HP budget akan lebih lambat).
-- Video: retry otomatis ke software decoder jika hardware decoder gagal.
+- Video: retry otomatis ke software decoder jika hardware decoder gagal (player dan konversi).
+- Diuji di emulator: 7 format video (AVI/MPEG-4, WebM/VP9, 3GP, MOV, MP4/AV1, MKV/HEVC, MP4/HEVC) dan foto AVIF/HEIC/BMP/GIF; konversi HEVC→H.264, VP9 WebM→H.264 480p, AVIF→JPEG, HEIC→WebP 1080 px.
+- Belum diuji: foto Ultra HDR asli, DNG asli, Android 11–12.
 
 ## 10. Verifikasi MVP
 
