@@ -21,3 +21,11 @@ See [docs/SPEC.md](docs/SPEC.md) for the product spec and roadmap, and [AGENTS.m
 ./gradlew :app:assembleRelease
 adb install app/build/outputs/apk/release/app-release.apk
 ```
+
+## Contributing
+
+Issues and pull requests are welcome. Read [AGENTS.md](AGENTS.md) for the architecture, invariants (no network, speed first, strings in English and Indonesian) and the checks to run before sending a change.
+
+## License
+
+[Apache License 2.0](LICENSE)
