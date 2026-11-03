@@ -12,6 +12,8 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,7 +42,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.plaingallery.core.model.Media
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.plaingallery.core.ui.EmptyState
+import app.plaingallery.core.ui.LocalCreateActions
+import app.plaingallery.core.ui.LocalDataGraph
 import app.plaingallery.core.ui.R
 import app.plaingallery.core.ui.actions.MediaActions
 import app.plaingallery.core.ui.actions.rememberMediaActions
@@ -87,6 +92,10 @@ fun MediaBrowser(
     var confirmDelete by remember { mutableStateOf<List<Media>?>(null) }
     val selected = remember(items, selection.ids) { items.orEmpty().filter { it.id in selection.ids } }
     val trashUndo = rememberTrashWithUndo(actions, snackbarHostState)
+    var addingToAlbum by remember { mutableStateOf<List<Media>?>(null) }
+    val graph = LocalDataGraph.current
+    val scope = rememberCoroutineScope()
+    val resources = LocalResources.current
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -153,6 +162,11 @@ fun MediaBrowser(
                             IconButton(onClick = { actions.restore(selected); done() }) {
                                 Icon(painterResource(R.drawable.ic_restore), stringResource(R.string.action_restore))
                             }
+                        } else {
+                            IconButton(onClick = { addingToAlbum = selected }) {
+                                Icon(painterResource(R.drawable.ic_library_add), stringResource(R.string.album_add))
+                            }
+                            CreateMenu(selected, done)
                         }
                         selectionActions(selected, done)
                     },
@@ -166,6 +180,28 @@ fun MediaBrowser(
             sharing = null
             selection.clear()
         })
+    }
+    addingToAlbum?.let { media ->
+        val library by graph.media.library.collectAsStateWithLifecycle()
+        val ids = media.map { it.id }
+        fun added(name: String) {
+            addingToAlbum = null
+            selection.clear()
+            scope.launch { snackbarHostState.showSnackbar(resources.getString(R.string.album_added, name)) }
+        }
+        AddToAlbumDialog(
+            albums = library?.userAlbums.orEmpty(),
+            onPick = { album ->
+                // App scope: the album keeps the photos even if this screen closes right away.
+                graph.scope.launch { graph.albums.add(album.id, ids) }
+                added(album.name)
+            },
+            onCreate = { name ->
+                graph.scope.launch { graph.albums.create(name, ids) }
+                added(name)
+            },
+            onDismiss = { addingToAlbum = null },
+        )
     }
     confirmDelete?.let { media ->
         DeleteForeverDialog(
@@ -211,4 +247,34 @@ fun DeleteForeverDialog(count: Int, onConfirm: () -> Unit, onDismiss: () -> Unit
         confirmButton = { TextButton(onClick = onConfirm) { Text(stringResource(R.string.action_delete_forever)) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
     )
+}
+
+/** "Create" in the selection toolbar: collage (2–9 photos), Instagram grid (1 photo), trim (1 video). */
+@Composable
+private fun CreateMenu(selected: List<Media>, done: () -> Unit) {
+    val create = LocalCreateActions.current ?: return
+    val photos = selected.filter { !it.isVideo }
+    val canCollage = photos.size == selected.size && selected.size in 2..9
+    val single = selected.singleOrNull()
+    if (!canCollage && single == null) return
+    var open by remember { mutableStateOf(false) }
+    Box {
+        IconButton(onClick = { open = true }) { Icon(painterResource(R.drawable.ic_auto_awesome), stringResource(R.string.create)) }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            val pick = { action: () -> Unit ->
+                open = false
+                action()
+                done()
+            }
+            if (canCollage) {
+                DropdownMenuItem(text = { Text(stringResource(R.string.create_collage)) }, onClick = { pick { create.collage(selected) } })
+            }
+            if (single != null && !single.isVideo) {
+                DropdownMenuItem(text = { Text(stringResource(R.string.create_instagram_grid)) }, onClick = { pick { create.instagramGrid(single) } })
+            }
+            if (single != null && single.isVideo) {
+                DropdownMenuItem(text = { Text(stringResource(R.string.create_trim)) }, onClick = { pick { create.trimVideo(single) } })
+            }
+        }
+    }
 }

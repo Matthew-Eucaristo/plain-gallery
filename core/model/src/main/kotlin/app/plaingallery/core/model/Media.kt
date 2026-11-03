@@ -40,6 +40,8 @@ data class Media(
     val expiresAt: Long,
     /** The user promoted this incoming item to their photos. */
     val isKept: Boolean,
+    /** For screenshots: the app on screen, when the file name says (see [ScreenshotApp]). */
+    val screenshotApp: String? = null,
 ) {
     val isVideo: Boolean get() = kind == MediaKind.Video
 
@@ -50,7 +52,7 @@ data class Media(
     val isSent: Boolean get() = relativePath.contains("/Sent/", ignoreCase = true)
 
     internal val searchText: String by lazy(LazyThreadSafetyMode.NONE) {
-        "$displayName $bucketName $relativePath".lowercase()
+        "$displayName $bucketName $relativePath ${screenshotApp.orEmpty()}".lowercase().foldAccents()
     }
 }
 
@@ -60,3 +62,9 @@ data class Album(
     val count: Int,
     val cover: Media,
 )
+
+private val COMBINING_MARKS = Regex("\\p{Mn}+")
+
+/** "pokémon" → "pokemon", so searches match with or without accents. */
+fun String.foldAccents(): String =
+    if (all { it.code < 0x80 }) this else COMBINING_MARKS.replace(java.text.Normalizer.normalize(this, java.text.Normalizer.Form.NFD), "")

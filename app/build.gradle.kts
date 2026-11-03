@@ -61,6 +61,7 @@ dependencies {
     implementation(project(":feature:tidy"))
     implementation(project(":feature:settings"))
     implementation(project(":feature:editor"))
+    implementation(project(":feature:create"))
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)

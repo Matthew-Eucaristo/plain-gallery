@@ -24,11 +24,13 @@ class GalleryApplication : Application(), DataGraph.Owner, SingletonImageLoader.
             override fun onStart(owner: LifecycleOwner) {
                 dataGraph.media.startObserving()
                 dataGraph.faces.start()
+                dataGraph.text.start()
             }
 
             override fun onStop(owner: LifecycleOwner) {
                 dataGraph.media.stopObserving()
                 dataGraph.faces.stop()
+                dataGraph.text.stop()
             }
         })
     }

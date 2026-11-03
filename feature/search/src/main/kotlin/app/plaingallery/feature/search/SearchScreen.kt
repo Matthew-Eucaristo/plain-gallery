@@ -236,6 +236,12 @@ private fun Suggestions(onPick: (String) -> Unit) {
             val eid = stringResource(R.string.query_eid)
             SuggestionChip(onClick = { onPick(eid) }, label = { Text(eid.replaceFirstChar { it.uppercase() }) })
         }
+        val apps = library?.screenshotApps.orEmpty().take(MAX_APPS)
+        if (apps.isNotEmpty()) {
+            Section(stringResource(R.string.search_screenshot_apps)) {
+                apps.forEach { app -> SuggestionChip(onClick = { onPick(app.lowercase()) }, label = { Text(app) }) }
+            }
+        }
         val years = library?.years.orEmpty()
         if (years.isNotEmpty()) {
             Section(stringResource(R.string.search_years)) {
@@ -252,6 +258,7 @@ private fun Suggestions(onPick: (String) -> Unit) {
 }
 
 private const val MAX_PEOPLE = 12
+private const val MAX_APPS = 10
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

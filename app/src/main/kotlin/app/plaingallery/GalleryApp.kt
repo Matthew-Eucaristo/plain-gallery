@@ -32,10 +32,15 @@ import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
 import app.plaingallery.core.model.Media
 import app.plaingallery.core.model.MediaCollection
+import app.plaingallery.core.ui.CreateActions
 import app.plaingallery.core.ui.EmptyState
+import app.plaingallery.core.ui.LocalCreateActions
 import app.plaingallery.core.ui.LocalDataGraph
 import app.plaingallery.core.ui.LocalNavAnimatedVisibilityScope
 import app.plaingallery.core.ui.LocalSharedTransitionScope
+import app.plaingallery.feature.create.CollageScreen
+import app.plaingallery.feature.create.InstagramGridScreen
+import app.plaingallery.feature.create.VideoTrimScreen
 import app.plaingallery.feature.library.CollectionScreen
 import app.plaingallery.feature.library.PeopleScreen
 import app.plaingallery.feature.library.PersonScreen
@@ -64,6 +69,15 @@ data object PeopleKey : NavKey
 
 @Serializable
 data class PersonKey(val personId: Long) : NavKey
+
+@Serializable
+data class CollageKey(val mediaIds: List<Long>) : NavKey
+
+@Serializable
+data class InstagramGridKey(val mediaId: Long) : NavKey
+
+@Serializable
+data class TrimKey(val mediaId: Long) : NavKey
 
 @Composable
 fun GalleryApp() {
@@ -96,9 +110,17 @@ fun GalleryApp() {
     }
     fun openViewer(from: NavKey): (MediaCollection, Media) -> Unit = { collection, media -> push(from, ViewerKey(collection, media.id)) }
     val fade = tween<Float>(durationMillis = 200)
+    // Creative tools open from any screen (selection toolbar, viewer): pushed on top of whatever is showing.
+    val create = remember(backStack) {
+        CreateActions(
+            collage = { media -> backStack.lastOrNull()?.let { push(it, CollageKey(media.map { m -> m.id })) } },
+            instagramGrid = { media -> backStack.lastOrNull()?.let { push(it, InstagramGridKey(media.id)) } },
+            trimVideo = { media -> backStack.lastOrNull()?.let { push(it, TrimKey(media.id)) } },
+        )
+    }
 
     SharedTransitionLayout {
-        CompositionLocalProvider(LocalSharedTransitionScope provides this) {
+        CompositionLocalProvider(LocalSharedTransitionScope provides this, LocalCreateActions provides create) {
             NavDisplay(
                 backStack = backStack,
                 onBack = { if (backStack.size > 1) backStack.removeAt(backStack.lastIndex) },
@@ -130,6 +152,9 @@ fun GalleryApp() {
                     entry<SettingsKey> { SettingsScreen(onBack = pop(SettingsKey)) }
                     entry<PeopleKey> { PeopleScreen(onOpenPerson = { push(PeopleKey, PersonKey(it)) }, onBack = pop(PeopleKey)) }
                     entry<PersonKey> { key -> Animated { PersonScreen(key.personId, onOpen = openViewer(key), onBack = pop(key)) } }
+                    entry<CollageKey> { key -> CollageScreen(key.mediaIds, onClose = pop(key)) }
+                    entry<InstagramGridKey> { key -> InstagramGridScreen(key.mediaId, onClose = pop(key)) }
+                    entry<TrimKey> { key -> VideoTrimScreen(key.mediaId, onClose = pop(key)) }
                 },
             )
         }

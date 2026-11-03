@@ -1,11 +1,16 @@
 package app.plaingallery.feature.viewer
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
 import android.provider.MediaStore
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -24,6 +29,7 @@ import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
 import app.plaingallery.core.data.contentUri
 import app.plaingallery.core.model.Media
+import app.plaingallery.core.ui.LocalDataGraph
 import app.plaingallery.core.ui.format.dateTimeLabel
 import app.plaingallery.core.ui.format.formatBytes
 import app.plaingallery.core.ui.format.sourceLabel
@@ -46,11 +52,17 @@ internal fun InfoSheet(media: Media, onDismiss: () -> Unit) {
         }
     }
 
+    val graph = LocalDataGraph.current
+    val text by produceState<String?>(null, media.id) {
+        if (!media.isVideo) value = graph.text.textOf(media.id)
+    }
+
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier
                 .navigationBarsPadding()
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 24.dp),
         ) {
@@ -69,6 +81,15 @@ internal fun InfoSheet(media: Media, onDismiss: () -> Unit) {
                     Icon(painterResource(UiR.drawable.ic_map), null, Modifier.padding(end = 8.dp))
                     Text(stringResource(R.string.open_in_maps))
                 }
+            }
+            text?.let { read ->
+                Column {
+                    Text(stringResource(R.string.info_text), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    SelectionContainer { Text(read, style = MaterialTheme.typography.bodyLarge) }
+                }
+                FilledTonalButton(onClick = {
+                    context.getSystemService(ClipboardManager::class.java)?.setPrimaryClip(ClipData.newPlainText(null, read))
+                }) { Text(stringResource(R.string.info_copy_text)) }
             }
         }
     }

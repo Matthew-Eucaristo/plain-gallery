@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.plaingallery.core.model.Album
+import app.plaingallery.core.model.Media
 import app.plaingallery.core.model.MediaCollection
 import app.plaingallery.core.model.MediaSource
 import app.plaingallery.core.ui.LocalDataGraph
@@ -116,6 +117,18 @@ fun AlbumsScreen(
                     PeopleSection(people, faceProgress, onOpenPerson = { onOpenPerson(it.id) }, onSeeAll = onOpenPeople)
                 }
             }
+            val userAlbums = library?.userAlbums.orEmpty()
+            if (userAlbums.isNotEmpty()) {
+                item(key = "my-albums", span = { GridItemSpan(maxLineSpan) }, contentType = "header") {
+                    Text(stringResource(R.string.my_albums), style = MaterialTheme.typography.titleMedium)
+                }
+                items(userAlbums, key = { "user-${it.id}" }, contentType = { "album" }) { album ->
+                    Tile(album.name, album.count, album.cover) { onOpenCollection(MediaCollection.UserAlbum(album.id)) }
+                }
+                item(key = "folders", span = { GridItemSpan(maxLineSpan) }, contentType = "header") {
+                    Text(stringResource(R.string.folders), style = MaterialTheme.typography.titleMedium)
+                }
+            }
             items(albums, key = { it.bucketId }, contentType = { "album" }) { album ->
                 AlbumTile(album) { onOpenCollection(MediaCollection.Album(album.bucketId)) }
             }
@@ -139,7 +152,10 @@ private fun Shortcut(title: Int, icon: Painter, modifier: Modifier, onClick: () 
 }
 
 @Composable
-private fun AlbumTile(album: Album, onClick: () -> Unit) {
+private fun AlbumTile(album: Album, onClick: () -> Unit) = Tile(album.name, album.count, album.cover, onClick)
+
+@Composable
+private fun Tile(name: String, count: Int, cover: Media?, onClick: () -> Unit) {
     Column(Modifier.clickable(onClick = onClick)) {
         Box(
             Modifier
@@ -148,20 +164,22 @@ private fun AlbumTile(album: Album, onClick: () -> Unit) {
                 .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.surfaceContainerHigh),
         ) {
-            AsyncImage(
-                model = rememberThumbnailRequest(album.cover),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize(),
-            )
+            if (cover != null) {
+                AsyncImage(
+                    model = rememberThumbnailRequest(cover),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
         }
         Text(
-            album.name,
+            name,
             style = MaterialTheme.typography.titleSmall,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(top = 8.dp),
         )
-        Text(album.count.toString(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(count.toString(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

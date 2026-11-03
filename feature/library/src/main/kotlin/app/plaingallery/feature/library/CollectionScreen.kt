@@ -5,6 +5,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,6 +42,7 @@ import app.plaingallery.core.ui.browser.BrowserMode
 import app.plaingallery.core.ui.browser.DeleteForeverDialog
 import app.plaingallery.core.ui.browser.MediaBrowser
 import app.plaingallery.core.ui.rememberCollection
+import kotlinx.coroutines.launch
 import app.plaingallery.core.ui.R as UiR
 
 /** Any single collection on its own screen: an album, Favorites, Videos, Screenshots or Trash. */
@@ -55,6 +60,11 @@ fun CollectionScreen(
     val isTrash = collection == MediaCollection.Trash
     val actions = rememberMediaActions()
     var confirmEmpty by remember { mutableStateOf(false) }
+    val graph = LocalDataGraph.current
+    val userAlbum = (collection as? MediaCollection.UserAlbum)?.let { c -> library?.userAlbums?.firstOrNull { it.id == c.albumId } }
+    var albumMenu by remember { mutableStateOf(false) }
+    var renaming by rememberSaveable { mutableStateOf(false) }
+    var confirmDeleteAlbum by remember { mutableStateOf(false) }
 
     val title = when (collection) {
         is MediaCollection.Album -> library?.albums?.firstOrNull { it.bucketId == collection.bucketId }?.name.orEmpty()
@@ -62,6 +72,7 @@ fun CollectionScreen(
         MediaCollection.Videos -> stringResource(R.string.title_videos)
         MediaCollection.Trash -> stringResource(R.string.title_trash)
         is MediaCollection.Inbox -> if (collection.source == MediaSource.Screenshot) stringResource(R.string.title_screenshots) else stringResource(R.string.title_inbox)
+        is MediaCollection.UserAlbum -> userAlbum?.name.orEmpty()
         else -> ""
     }
 
@@ -81,12 +92,34 @@ fun CollectionScreen(
                 },
                 actions = {
                     if (collection is MediaCollection.Album) SortMenu(sort) { sort = it }
+                    if (collection is MediaCollection.UserAlbum) {
+                        IconButton(onClick = { albumMenu = true }) { Icon(Icons.Filled.MoreVert, stringResource(R.string.people_more)) }
+                        DropdownMenu(expanded = albumMenu, onDismissRequest = { albumMenu = false }) {
+                            DropdownMenuItem(text = { Text(stringResource(R.string.album_rename)) }, onClick = {
+                                albumMenu = false
+                                renaming = true
+                            })
+                            DropdownMenuItem(text = { Text(stringResource(R.string.album_delete)) }, onClick = {
+                                albumMenu = false
+                                confirmDeleteAlbum = true
+                            })
+                        }
+                    }
                     if (isTrash && !items.isNullOrEmpty()) {
                         TextButton(onClick = { confirmEmpty = true }) { Text(stringResource(R.string.empty_trash_action)) }
                     }
                 },
                 scrollBehavior = scroll,
             )
+        },
+        selectionActions = { selected, done ->
+            if (collection is MediaCollection.UserAlbum) {
+                IconButton(onClick = {
+                    val ids = selected.map { it.id }
+                    graph.scope.launch { graph.albums.remove(collection.albumId, ids) }
+                    done()
+                }) { Icon(Icons.Filled.Clear, stringResource(R.string.album_remove_items)) }
+            }
         },
         header = if (isTrash && !items.isNullOrEmpty()) {
             {
@@ -105,6 +138,37 @@ fun CollectionScreen(
             else EmptyState(stringResource(UiR.string.empty_nothing_here))
         },
     )
+
+    if (renaming && collection is MediaCollection.UserAlbum) {
+        var name by rememberSaveable { mutableStateOf(userAlbum?.name.orEmpty()) }
+        AlertDialog(
+            onDismissRequest = { renaming = false },
+            title = { Text(stringResource(R.string.album_rename)) },
+            text = { OutlinedTextField(value = name, onValueChange = { name = it }, singleLine = true) },
+            confirmButton = {
+                TextButton(enabled = name.isNotBlank(), onClick = {
+                    renaming = false
+                    graph.scope.launch { graph.albums.rename(collection.albumId, name) }
+                }) { Text(stringResource(R.string.person_save)) }
+            },
+            dismissButton = { TextButton(onClick = { renaming = false }) { Text(stringResource(UiR.string.action_cancel)) } },
+        )
+    }
+    if (confirmDeleteAlbum && collection is MediaCollection.UserAlbum) {
+        AlertDialog(
+            onDismissRequest = { confirmDeleteAlbum = false },
+            title = { Text(stringResource(R.string.album_delete_title, userAlbum?.name.orEmpty())) },
+            text = { Text(stringResource(R.string.album_delete_body)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmDeleteAlbum = false
+                    graph.scope.launch { graph.albums.delete(collection.albumId) }
+                    onBack()
+                }) { Text(stringResource(R.string.album_delete)) }
+            },
+            dismissButton = { TextButton(onClick = { confirmDeleteAlbum = false }) { Text(stringResource(UiR.string.action_cancel)) } },
+        )
+    }
 
     if (confirmEmpty) {
         DeleteForeverDialog(

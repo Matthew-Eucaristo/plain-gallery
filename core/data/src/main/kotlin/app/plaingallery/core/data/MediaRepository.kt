@@ -15,6 +15,7 @@ import app.plaingallery.core.model.MediaCollection
 import app.plaingallery.core.model.MediaKind
 import app.plaingallery.core.model.MediaSource
 import app.plaingallery.core.model.People
+import app.plaingallery.core.model.UserAlbum
 import app.plaingallery.core.model.SearchQueryParser
 import java.time.Instant
 import java.time.LocalDate
@@ -54,9 +55,15 @@ import kotlinx.coroutines.withTimeoutOrNull
 class MediaRepository internal constructor(
     private val dao: MediaDao,
     private val scanner: MediaStoreScanner,
+    private val screenshotApps: ScreenshotApps,
     private val scope: CoroutineScope,
     people: StateFlow<People>,
+    texts: StateFlow<Map<Long, String>>,
+    albums: StateFlow<List<UserAlbum>>,
 ) {
+    /** What the face index, text reading and user albums add on top of the media index. */
+    private class Extras(val people: People, val texts: Map<Long, String>, val albums: List<UserAlbum>)
+
     private val hidden = MutableStateFlow<Set<Long>>(emptySet())
     private val favoriteOverrides = MutableStateFlow<Map<Long, Boolean>>(emptyMap())
     private val syncMutex = Mutex()
@@ -69,13 +76,15 @@ class MediaRepository internal constructor(
         dao.observeAll().map(::toMedia),
         hidden,
         favoriteOverrides,
-        people,
-    ) { items, hidden, favorites, people ->
+        combine(people, texts, albums, ::Extras),
+    ) { items, hidden, favorites, extras ->
         val visible = if (hidden.isEmpty()) items else items.filter { it.id !in hidden }
         Library(
             if (favorites.isEmpty()) visible
             else visible.map { media -> favorites[media.id]?.let { media.copy(isFavorite = it) } ?: media },
-            people,
+            extras.people,
+            extras.texts,
+            extras.albums,
         )
     }.flowOn(Dispatchers.Default).stateIn(scope, SharingStarted.Eagerly, null)
 
@@ -198,6 +207,7 @@ class MediaRepository internal constructor(
                 isTrashed = m.isTrashed,
                 expiresAt = m.expiresAt,
                 isKept = isKept,
+                screenshotApp = if (m.source == MediaSource.Screenshot.name) screenshotApps.of(m.displayName) else null,
             )
         }
     }

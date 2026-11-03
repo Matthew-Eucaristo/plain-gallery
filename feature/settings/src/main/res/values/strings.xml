@@ -28,4 +28,6 @@
     <string name="settings_faces_off_title">Turn off face grouping?</string>
     <string name="settings_faces_off_body">All face data and the names you gave will be deleted from this phone. Your photos are not touched.</string>
     <string name="settings_faces_off_confirm">Turn off and delete</string>
+    <string name="settings_text">Search text in photos</string>
+    <string name="settings_text_body">Gallery reads the words in your screenshots and photos on this phone, without internet, so search can find them. Turning it off deletes what was read.</string>
 </resources>

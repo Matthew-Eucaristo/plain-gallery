@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_save">Save</string>
+    <string name="create_saved">Saved to your photos</string>
+    <string name="create_failed">Could not save. Your photos are unchanged.</string>
+    <string name="create_layout">Layout</string>
+    <string name="create_layout_grid">Grid</string>
+    <string name="create_layout_rows">Rows</string>
+    <string name="create_layout_columns">Columns</string>
+    <string name="create_shape">Shape</string>
+    <string name="create_border">White border</string>
+    <string name="create_posts">Posts</string>
+    <plurals name="create_post_count">
+        <item quantity="one">%d post</item>
+        <item quantity="other">%d posts</item>
+    </plurals>
+    <string name="create_grid_hint">Saved as separate photos in Pictures/Instagram grid. Post them in number order, starting with 1, so they line up on your profile.</string>
+    <string name="create_grid_saved">Grid saved. Post the photos in number order, starting with 1.</string>
+    <string name="create_play">Play</string>
+    <string name="create_mute">Remove sound</string>
+</resources>

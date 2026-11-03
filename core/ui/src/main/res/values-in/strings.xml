@@ -62,4 +62,16 @@
         <item quantity="other">Hapus %d item secara permanen?</item>
     </plurals>
     <string name="delete_forever_body">Tidak bisa dibatalkan.</string>
+    <string name="album_add">Tambah ke album</string>
+    <string name="album_add_title">Tambah ke album</string>
+    <string name="album_new">Nama album baru</string>
+    <string name="album_create">Buat</string>
+    <string name="album_added">Ditambahkan ke %1$s</string>
+    <plurals name="album_count">
+        <item quantity="other">%d item</item>
+    </plurals>
+    <string name="create">Kreasi</string>
+    <string name="create_collage">Kolase</string>
+    <string name="create_instagram_grid">Grid Instagram</string>
+    <string name="create_trim">Potong video</string>
 </resources>

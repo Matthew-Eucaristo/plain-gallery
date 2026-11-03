@@ -5,6 +5,8 @@ import android.content.Context
 import android.os.SystemClock
 import android.provider.MediaStore
 import android.util.Log
+import app.plaingallery.core.data.analysisDispatcher
+import app.plaingallery.core.data.decodeUpright
 import app.plaingallery.core.data.settings.SettingsRepository
 import app.plaingallery.core.faces.FaceEngine
 import app.plaingallery.core.faces.RecognizedFace
@@ -16,12 +18,10 @@ import app.plaingallery.core.model.People
 import app.plaingallery.core.model.Person
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.concurrent.Executors
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -71,12 +71,7 @@ class FaceRepository internal constructor(
     val progress: StateFlow<FaceProgress> = _progress.asStateFlow()
 
     private val foreground = MutableStateFlow(false)
-    private val dispatcher = Executors.newSingleThreadExecutor { runnable ->
-        Thread(runnable, "faces").apply {
-            priority = Thread.MIN_PRIORITY
-            isDaemon = true
-        }
-    }.asCoroutineDispatcher()
+    private val dispatcher = analysisDispatcher
 
     // In-memory mirror of the face database; every change happens under [mutex].
     private val mutex = Mutex()
@@ -282,7 +277,7 @@ class FaceRepository internal constructor(
 
     private fun analyze(engine: FaceEngine, mediaId: Long): List<RecognizedFace> = try {
         val uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, mediaId)
-        val bitmap = decodeForFaces(context.contentResolver, uri, FaceEngine.ANALYSIS_PX)
+        val bitmap = decodeUpright(context.contentResolver, uri, FaceEngine.ANALYSIS_PX)
         try {
             engine.analyze(bitmap)
         } finally {

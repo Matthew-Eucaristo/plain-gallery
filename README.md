@@ -34,6 +34,10 @@ Phone galleries show ads; cloud galleries keep asking to back up until your free
 - **Fast.** Local index with incremental sync, system thumbnail cache, Baseline Profile, optimistic deletes with Undo. Pinch to change density (the grid follows your fingers), drag the scrubber through years.
 - **On this day**: photos from today's date in earlier years, as cards on top of *Photos*.
 - **People**: faces are recognized and grouped by person on the phone itself (YuNet + SFace through LiteRT, ~10 MB, no internet). Name someone and search for them; give two groups the same name to join them.
+- **Search text inside photos**: screenshots, receipts, tickets are read on the phone (PP-OCRv6 tiny, ~2 MB) so `boarding pass` or `rp 125.000` finds them. Copy the text from Info.
+- **Screenshots know their app** (Samsung, Xiaomi, Huawei/Honor name it in the file): "Screenshot · Instagram", searchable.
+- **Your own albums**: select photos (long-press, drag), *Add to album*. Files stay where they are.
+- **Create**: collage (2–9 photos; grid, rows, columns; 1:1, 4:5, 9:16), Instagram grid (3, 6 or 9 posts, numbered in posting order), trim video (with or without sound). Always saved as new files.
 - **Swipe between tabs**, or tap the bar.
 - **Search that understands you**, in English and Indonesian: `wa july 2024`, `screenshot yesterday`, `video favorites`, `eid 2023`, a person's name, or part of a file name.
 - **Share in one tap** to WhatsApp or the app you used last. *Recommended* (default) converts only what other apps can't open: HEIC/AVIF/RAW → JPEG, HEVC/VP9/AV1/WebM/MKV → H.264 MP4. Also *Original*, *Small* (1600 px photos, 720p video) and *Custom* (JPG/PNG/WebP, photo size, 1080p/720p/480p).
@@ -60,7 +64,7 @@ No internet permission, no accounts, no analytics, no ads. CI fails the build if
 adb install app/build/outputs/apk/release/app-release.apk
 ```
 
-Kotlin, Jetpack Compose, Material 3 Expressive, Navigation 3, Room 3, Coil 3, Telephoto, Media3 (ExoPlayer, Transformer), LiteRT (on-device face models, see [core/faces/MODELS.md](core/faces/MODELS.md)).
+Kotlin, Jetpack Compose, Material 3 Expressive, Navigation 3, Room 3, Coil 3, Telephoto, Media3 (ExoPlayer, Transformer), LiteRT (on-device models: [faces](core/faces/MODELS.md), [text](core/text/MODELS.md)).
 
 - [docs/SPEC.md](docs/SPEC.md) — product spec and roadmap (Indonesian)
 - [AGENTS.md](AGENTS.md) — architecture, invariants and checks

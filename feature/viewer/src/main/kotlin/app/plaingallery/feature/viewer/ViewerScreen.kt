@@ -73,6 +73,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import app.plaingallery.core.data.contentUri
 import app.plaingallery.core.model.Media
 import app.plaingallery.core.model.MediaCollection
+import app.plaingallery.core.ui.LocalCreateActions
 import app.plaingallery.core.ui.LocalGalleryUiState
 import app.plaingallery.core.ui.actions.rememberMediaActions
 import app.plaingallery.core.ui.browser.DeleteForeverDialog
@@ -208,6 +209,12 @@ fun ViewerScreen(collection: MediaCollection, initialId: Long, onBack: () -> Uni
                     } else {
                         Action(rememberVectorPainter(Icons.Filled.Share), stringResource(UiR.string.action_share)) {
                             sharing = listOf(current)
+                        }
+                        val create = LocalCreateActions.current
+                        if (current.isVideo && create != null) {
+                            Action(painterResource(UiR.drawable.ic_content_cut), stringResource(UiR.string.create_trim)) {
+                                create.trimVideo(current)
+                            }
                         }
                         if (!current.isVideo) {
                             Action(rememberVectorPainter(Icons.Filled.Edit), stringResource(R.string.action_edit)) {

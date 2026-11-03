@@ -13,6 +13,7 @@ room3 {
 dependencies {
     api(project(":core:model"))
     implementation(project(":core:faces"))
+    implementation(project(":core:text"))
     api(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.room3.runtime)

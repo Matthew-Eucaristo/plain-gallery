@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_save">Simpan</string>
+    <string name="create_saved">Tersimpan di foto kamu</string>
+    <string name="create_failed">Gagal menyimpan. Foto kamu tidak berubah.</string>
+    <string name="create_layout">Tata letak</string>
+    <string name="create_layout_grid">Grid</string>
+    <string name="create_layout_rows">Baris</string>
+    <string name="create_layout_columns">Kolom</string>
+    <string name="create_shape">Bentuk</string>
+    <string name="create_border">Bingkai putih</string>
+    <string name="create_posts">Postingan</string>
+    <plurals name="create_post_count">
+        <item quantity="other">%d postingan</item>
+    </plurals>
+    <string name="create_grid_hint">Disimpan sebagai foto terpisah di Pictures/Instagram grid. Unggah sesuai urutan nomor, mulai dari 1, supaya tersusun rapi di profil.</string>
+    <string name="create_grid_saved">Grid tersimpan. Unggah sesuai urutan nomor, mulai dari 1.</string>
+    <string name="create_play">Putar</string>
+    <string name="create_mute">Hapus suara</string>
+</resources>

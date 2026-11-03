@@ -30,6 +30,10 @@ sealed interface MediaCollection {
     @Serializable
     data class Person(val personId: Long) : MediaCollection
 
+    /** An album the user made. */
+    @Serializable
+    data class UserAlbum(val albumId: Long) : MediaCollection
+
     /** "On this day": photos taken on local epoch days [startDay, endDay). */
     @Serializable
     data class Memory(val startDay: Int, val endDay: Int) : MediaCollection

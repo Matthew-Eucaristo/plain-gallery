@@ -79,4 +79,11 @@
     <string name="person_hide">Hide this person</string>
     <string name="person_unhide">Show this person again</string>
     <string name="person_not_this">Not this person</string>
+    <string name="my_albums">Your albums</string>
+    <string name="folders">Folders</string>
+    <string name="album_rename">Rename album</string>
+    <string name="album_delete">Delete album</string>
+    <string name="album_delete_title">Delete \"%1$s\"?</string>
+    <string name="album_delete_body">Only the album goes. The photos stay in your library.</string>
+    <string name="album_remove_items">Remove from album</string>
 </resources>

@@ -75,13 +75,14 @@ val MediaSource.iconRes: Int
         MediaSource.Other -> R.drawable.ic_image
     }
 
-/** "WhatsApp · received", "Screenshot", "Camera". */
+/** "WhatsApp · received", "Screenshot · Instagram", "Camera". */
 @Composable
 fun sourceLabel(media: Media): String {
     val name = stringResource(media.source.labelRes)
     return when (media.source) {
         MediaSource.WhatsApp, MediaSource.Telegram ->
             stringResource(if (media.isSent) R.string.source_sent else R.string.source_received, name)
+        MediaSource.Screenshot -> media.screenshotApp?.let { "$name · $it" } ?: name
         else -> name
     }
 }

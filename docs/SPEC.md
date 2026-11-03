@@ -133,6 +133,7 @@ Pengaturan dibuka dari ikon di top bar.
 - **Buka foto dengan Gallery**: petunjuk + tombol ke pengaturan app default.
 - Batas umur kiriman "lama": 30 / 60 / 90 hari.
 - **Kenangan hari ini** (aktif): kartu di atas Foto.
+- **Cari teks di foto** (aktif): progres; mematikan menghapus hasil bacaan.
 - **Kelompokkan wajah** (aktif): progres "1.234 dari 8.000 foto". Mematikan = konfirmasi lalu semua data wajah dan nama dihapus.
 - Tentang: versi, "Tanpa internet. Tanpa iklan. Open source."
 
@@ -146,6 +147,27 @@ Pengaturan dibuka dari ikon di top bar.
 - **Simpan salinan**: file baru di folder yang sama (DCIM/Pictures; sumber lain seperti WhatsApp → `Pictures/Edited/`), dengan EXIF tanggal, kamera dan lokasi; orientasi dinormalkan. Asli tidak pernah diubah.
 - Juga muncul sebagai pilihan "Edit" untuk app lain (intent `ACTION_EDIT` gambar).
 - Selalu gelap, seperti viewer.
+
+### 5.17 Cari teks di foto (OCR)
+- PP-OCRv6 tiny (Apache-2.0, 49 bahasa termasuk Indonesia & Inggris) via LiteRT di CPU, ±2 MB. Tanpa internet.
+- Urutan: screenshot dulu, lalu kiriman lain, lalu foto kamera; terbaru dulu. Saat app terbuka saja, bergantian dengan pengenalan wajah di satu thread prioritas rendah.
+- Deteksi per ubin 736×736 (tumpang tindih 64 px), lalu tiap baris dibaca dengan lebar mengikuti panjang baris. Uji: 98,9% kata terbaca di screenshot sintetis.
+- Cari mencocokkan teks di foto (tanpa beda huruf besar/kecil dan aksen). Info foto menampilkan "Teks di foto ini" + **Salin teks**.
+- Bisa dimatikan di Pengaturan (hasil bacaan dihapus).
+
+### 5.18 Screenshot dari aplikasi mana
+- Dibaca dari nama file: Samsung menulis nama app, Xiaomi/Huawei/Honor menulis nama paket (nama app diambil dari sistem lewat `<queries>` launcher, tanpa izin). Pixel dll. hanya tanggal → tidak ada.
+- Tampil "Screenshot · Instagram" di Info; bisa dicari ("instagram", "pokemon"); saran "Screenshot dari" di Cari.
+
+### 5.19 Album kamu
+- Pilih foto (tekan lama, seret) → **Tambah ke album** → pilih album atau buat baru. Album hanya merujuk foto; file tidak dipindah/disalin.
+- Tab Album: "Album kamu" di atas folder. Layar album: ganti nama, hapus album (foto tetap), pilih → **Keluarkan dari album**.
+
+### 5.20 Kreasi
+- Dari toolbar pilih (ikon ✦) dan tombol potong di viewer video. Hasil selalu file baru.
+- **Kolase** (2–9 foto): Grid/Baris/Kolom, 1:1 · 4:5 · 9:16, bingkai putih. Lebar 2160 px → `Pictures/Collage/`.
+- **Grid Instagram** (1 foto): 3/6/9 postingan, petak 3:4 (profil IG sejak 2025) atau 1:1, bernomor sesuai urutan unggah (1 = kanan bawah) → `Pictures/Instagram grid/`.
+- **Potong video**: dua pegangan, putar berulang di bagian yang dipilih, opsi hapus suara; H.264/AAC MP4 di folder yang sama (atau `Movies/Edited/`).
 
 ### 5.15 Kenangan hari ini
 - Baris kartu di atas grid Foto, satu kartu per tahun sebelumnya: "1 tahun lalu · 3 Nov 2025". Hanya dari Foto (kamera + yang disimpan), bukan kiriman atau Sampah.
@@ -186,6 +208,7 @@ core:data            MediaStore source, index Room 3, sync inkremental,
                      MediaRepository (snapshot Library + optimistic hide),
                      aksi tulis (trash/favorit/hapus), share & konversi, pencarian, settings
 core:faces           FaceEngine (LiteRT: YuNet + SFace), decoding & alignment murni
+core:text            TextEngine (LiteRT: PP-OCRv6 tiny), tiling/DB/CTC murni
 core:ui              tema Expressive, MediaGrid (pinch, scrubber, drag-select),
                      thumbnail Coil, share sheet, launcher write-request
 feature:library      Foto, Kiriman, Album, detail Album, Sampah
@@ -193,6 +216,7 @@ feature:viewer       pager, zoom, video, info
 feature:editor       editor foto (potong, atur, coret), simpan salinan
 feature:search       layar Cari
 feature:tidy         Rapikan
+feature:create       Kolase, Grid Instagram, Potong video
 feature:settings     Pengaturan
 baselineprofile      generator Baseline Profile
 ```

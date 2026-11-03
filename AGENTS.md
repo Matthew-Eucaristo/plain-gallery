@@ -7,16 +7,17 @@ Product spec and roadmap: `docs/SPEC.md`.
 - Kotlin 2.4 (AGP 9 built-in Kotlin), AGP 9.5, Gradle 9.8, JDK from Android Studio (`/Applications/Android Studio.app/Contents/jbr/Contents/Home`).
 - Compose BOM 2026.09; **Material 3 pinned to 1.5.0-beta** for Expressive components (`gradle/libs.versions.toml`).
 - Navigation 3, Room 3 (KSP, framework SQLite driver), Coil 3, Telephoto (zoom/subsampling), Media3 ExoPlayer + `media3-ui-compose`, DataStore.
-- LiteRT 2.x (`CompiledModel`, CPU) for the bundled face models (YuNet + SFace, `core/faces/MODELS.md`).
+- LiteRT 2.x (`CompiledModel`, CPU) for the bundled models: faces (YuNet + SFace, `core/faces/MODELS.md`) and OCR (PP-OCRv6 tiny, `core/text/MODELS.md`).
 - minSdk 30 (trash/favorite MediaStore APIs, `GENERATION_MODIFIED`), target/compile 37.
 - Manual DI: `DataGraph` (core:data), owned by `GalleryApplication`, exposed to Compose via `LocalDataGraph`.
 
 ## Modules
 - `core:model` — pure Kotlin domain: `Media`, `Library` (cached views per snapshot, incl. `people` and `memories(today)`), `MediaCollection`, `SourceClassifier`, `SearchQueryParser`, `Memories` (on this day), `FaceClusterer`, `People`. Unit-tested.
 - `core:faces` — `FaceEngine` (LiteRT: YuNet detect → 5-point align → SFace 128-d embedding); pure `YuNet` decoding and `FaceAlignment` are unit-tested. Models in `src/main/assets/faces`, rebuilt by `scripts/convert-face-models.py`.
-- `core:data` — MediaStore scanner, Room index, `MediaRepository` (sync + optimistic hide/favorite), `MediaWriter` (create*Request), share/convert, settings, `FaceRepository` (face index in `faces.db`, clustering, names).
+- `core:text` — `TextEngine` (LiteRT: tiled DB detection → per-line CTC recognition, dynamic width via `resizeInputTensor("x")`); pure `TextDetection`/`Recognizer` are unit-tested. Models rebuilt by `scripts/convert-text-models.py`.
+- `core:data` — MediaStore scanner, Room index, `MediaRepository` (sync + optimistic hide/favorite), `MediaWriter` (create*Request), share/convert, settings, `FaceRepository` (face index in `faces.db`, clustering, names), `TextRepository` (`text.db`), `AlbumRepository` (`albums.db`), `MediaSaver` + `VideoTrimmer` for the creative tools.
 - `core:ui` — theme, thumbnail pipeline, `MediaGrid` (pinch, scrubber, drag-select), `MediaBrowser`, share sheet, `MediaActions`.
-- `feature:{library,viewer,search,tidy,settings,editor}` — screens; features never depend on each other (the viewer opens the editor through `ACTION_EDIT` + its own package, handled by `EditActivity`).
+- `feature:{library,viewer,search,tidy,settings,editor,create}` — screens (`create`: collage, Instagram grid, video trim, opened through `LocalCreateActions` from the selection toolbar and viewer); features never depend on each other (the viewer opens the editor through `ACTION_EDIT` + its own package, handled by `EditActivity`).
 - `app` — Nav3 `NavDisplay` + shared transitions, tabs (`HorizontalPager`: swipe or tap), permissions; `ViewerActivity` handles VIEW/REVIEW intents (default viewer). `baselineprofile` — profile generator.
 - Convention plugins live in `build-logic/convention` (`plaingallery.android.*`).
 
@@ -30,6 +31,9 @@ Product spec and roadmap: `docs/SPEC.md`.
 - Deletes go to the system Trash (`createTrashRequest`), applied optimistically with Undo. Never delete permanently without confirmation.
 - `kept` table is user data (incoming items promoted to Photos): migrations must preserve it; the `media` table is rebuildable.
 - Faces live in a separate `faces.db` (`FaceDatabase`): `person` (names, hidden) is user data and must survive migrations; `face`/`face_scan` are rebuildable but slow (whole library re-analyzed).
+- `albums.db` (user albums) is user data: keep both tables in migrations. `text.db` is rebuildable.
+- Creative tools and the editor only ever add new files (MediaStore insert with `IS_PENDING`); originals are never modified.
+- Faces and OCR share one min-priority `analysisDispatcher` thread so they take turns per photo.
 - Face indexing runs only while the app is in the foreground, one photo at a time on a min-priority thread with 2 LiteRT threads, saving every few photos; never in a service or WorkManager (no `WAKE_LOCK`). Turning "Group faces" off deletes all face data.
 - Clustering errs towards splitting (assign 0.48, merge 0.55 cosine on SFace); users join groups by giving the same name. Groups the user named or hid are never auto-merged with each other.
 - String resource names must be unique across modules (they merge in the app). Check:

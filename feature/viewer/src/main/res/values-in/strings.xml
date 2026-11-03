@@ -12,4 +12,6 @@
     <string name="open_in_maps">Buka di peta</string>
     <string name="play">Putar</string>
     <string name="pause">Jeda</string>
+    <string name="info_text">Teks di foto ini</string>
+    <string name="info_copy_text">Salin teks</string>
 </resources>

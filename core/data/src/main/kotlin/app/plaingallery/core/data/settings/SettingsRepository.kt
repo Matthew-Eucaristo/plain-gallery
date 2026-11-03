@@ -40,6 +40,13 @@ class SettingsRepository internal constructor(private val context: Context) {
     /** Group faces into people, on this device only. Turning it off also deletes the face data. */
     val faceGrouping: Flow<Boolean> = store.data.map { it[FACE_GROUPING] ?: true }
 
+    /** Read text in photos so search finds words inside screenshots and pictures, on this device only. */
+    val textSearch: Flow<Boolean> = store.data.map { it[TEXT_SEARCH] ?: true }
+
+    suspend fun setTextSearch(enabled: Boolean) {
+        store.edit { it[TEXT_SEARCH] = enabled }
+    }
+
     suspend fun setShowMemories(show: Boolean) {
         store.edit { it[SHOW_MEMORIES] = show }
     }
@@ -84,5 +91,6 @@ class SettingsRepository internal constructor(private val context: Context) {
         private val STALE_DAYS = intPreferencesKey("stale_inbox_days")
         private val SHOW_MEMORIES = booleanPreferencesKey("show_memories")
         private val FACE_GROUPING = booleanPreferencesKey("face_grouping")
+        private val TEXT_SEARCH = booleanPreferencesKey("text_search")
     }
 }

@@ -6,7 +6,14 @@ import java.time.LocalDate
  * An immutable snapshot of every indexed item, newest first by [Media.takenAt], plus who appears in them.
  * Views are computed lazily and cached per snapshot, so every screen reads the same instance.
  */
-class Library(val items: List<Media>, val faces: People = People.Empty) {
+class Library(
+    val items: List<Media>,
+    val faces: People = People.Empty,
+    /** Lower-cased text read in photos, by media id (only photos that have text). */
+    val texts: Map<Long, String> = emptyMap(),
+    /** Albums the user made. */
+    val userAlbumList: List<UserAlbum> = emptyList(),
+) {
     private val byId: Map<Long, Media> by lazy { items.associateBy { it.id } }
     private val live: List<Media> by lazy { items.filter { !it.isTrashed } }
     private val liveIds: Set<Long> by lazy { live.mapTo(HashSet(live.size)) { it.id } }
@@ -22,6 +29,24 @@ class Library(val items: List<Media>, val faces: People = People.Empty) {
         live.groupBy { it.bucketId }
             .map { (bucketId, media) -> Album(bucketId, media.first().bucketName, media.size, media.first()) }
             .sortedByDescending { it.cover.takenAt }
+    }
+
+    /** Albums the user made, newest first, with live counts and covers. */
+    val userAlbums: List<UserAlbumView> by lazy {
+        userAlbumList.map { album ->
+            val media = album.mediaIds.mapNotNull { id -> byId[id]?.takeIf { !it.isTrashed } }
+            UserAlbumView(album.id, album.name, media.size, media.firstOrNull())
+        }
+    }
+
+    /** A user album's photos, most recently added first. */
+    fun userAlbum(albumId: Long): List<Media> =
+        userAlbumList.firstOrNull { it.id == albumId }?.mediaIds.orEmpty().mapNotNull { id -> byId[id]?.takeIf { !it.isTrashed } }
+
+    /** Apps that screenshots were taken in, most screenshots first. */
+    val screenshotApps: List<String> by lazy {
+        screenshots.mapNotNull { it.screenshotApp }.groupingBy { it }.eachCount().entries
+            .sortedByDescending { it.value }.map { it.key }
     }
 
     /** Distinct years present, newest first. */
@@ -86,14 +111,17 @@ class Library(val items: List<Media>, val faces: People = People.Empty) {
         if (query.isEmpty) return emptyList()
         val startDay = query.date?.start?.toEpochDay()
         val endDay = query.date?.endExclusive?.toEpochDay()
-        // A word can also be part of someone's name: "budi" finds photos of Budi as well as files named budi.
-        val byName = query.terms.associateWith { term -> peopleNamed(term) }
+        // A word can also be part of someone's name ("budi" finds photos of Budi) or text inside the photo.
+        val terms = query.terms.map { it.lowercase().foldAccents() }
+        val byName = terms.associateWith { term -> peopleNamed(term) }
         return live.filter { media ->
             (query.kind == null || media.kind == query.kind) &&
                 (query.sources.isEmpty() || media.source in query.sources) &&
                 (!query.favoritesOnly || media.isFavorite) &&
                 (startDay == null || media.takenDay >= startDay && media.takenDay < endDay!!) &&
-                query.terms.all { term -> term in media.searchText || byName[term]?.contains(media.id) == true }
+                terms.all { term ->
+                    term in media.searchText || byName[term]?.contains(media.id) == true || texts[media.id]?.contains(term) == true
+                }
         }
     }
 
@@ -102,7 +130,7 @@ class Library(val items: List<Media>, val faces: People = People.Empty) {
         val needle = term.trim().lowercase()
         if (needle.length < 2) return emptyList()
         return people.filter { person ->
-            person.name?.lowercase()?.split(' ')?.any { it.startsWith(needle) } == true
+            person.name?.lowercase()?.foldAccents()?.split(' ')?.any { it.startsWith(needle.foldAccents()) } == true
         }
     }
 
@@ -121,6 +149,7 @@ class Library(val items: List<Media>, val faces: People = People.Empty) {
         MediaCollection.Trash -> trash
         is MediaCollection.Search -> search(parse(collection.query))
         is MediaCollection.Person -> personMedia(collection.personId)
+        is MediaCollection.UserAlbum -> userAlbum(collection.albumId)
         is MediaCollection.Memory -> memory(collection.startDay, collection.endDay)
     }
 

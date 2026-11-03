@@ -27,4 +27,6 @@
     <string name="settings_faces_off_title">Matikan pengelompokan wajah?</string>
     <string name="settings_faces_off_body">Semua data wajah dan nama yang kamu berikan akan dihapus dari HP ini. Foto kamu tidak berubah.</string>
     <string name="settings_faces_off_confirm">Matikan dan hapus</string>
+    <string name="settings_text">Cari teks di foto</string>
+    <string name="settings_text_body">Gallery membaca tulisan di screenshot dan foto kamu di HP ini, tanpa internet, supaya bisa dicari. Mematikannya menghapus hasil bacaan.</string>
 </resources>

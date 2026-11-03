@@ -65,6 +65,8 @@ fun SettingsScreen(onBack: () -> Unit) {
     val showMemories by graph.settings.showMemories.collectAsState(true)
     val faceGrouping by graph.settings.faceGrouping.collectAsState(true)
     val faceProgress by graph.faces.progress.collectAsState()
+    val textSearch by graph.settings.textSearch.collectAsState(true)
+    val textProgress by graph.text.progress.collectAsState()
     var confirmFacesOff by remember { mutableStateOf(false) }
     val version = remember { context.packageManager.getPackageInfo(context.packageName, 0).versionName.orEmpty() }
 
@@ -127,6 +129,28 @@ fun SettingsScreen(onBack: () -> Unit) {
                     Text(
                         if (faceProgress.done >= faceProgress.total) stringResource(R.string.settings_faces_done)
                         else stringResource(R.string.settings_faces_progress, faceProgress.done, faceProgress.total),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            HorizontalDivider()
+            ToggleSection(
+                stringResource(R.string.settings_text),
+                stringResource(R.string.settings_text_body),
+                checked = textSearch,
+                onCheckedChange = { on ->
+                    // App scope: finishes even if the user leaves Settings right away.
+                    graph.scope.launch {
+                        graph.settings.setTextSearch(on)
+                        if (!on) graph.text.deleteAll()
+                    }
+                },
+            ) {
+                if (textSearch && textProgress.total > 0) {
+                    Text(
+                        if (textProgress.done >= textProgress.total) stringResource(R.string.settings_faces_done)
+                        else stringResource(R.string.settings_faces_progress, textProgress.done, textProgress.total),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

@@ -32,6 +32,15 @@ class GalleryUiState {
 
 val LocalGalleryUiState = staticCompositionLocalOf { GalleryUiState() }
 
+/** Opens the creative tools; provided by the app. Null where they are not available (e.g. the external viewer). */
+class CreateActions(
+    val collage: (List<Media>) -> Unit,
+    val instagramGrid: (Media) -> Unit,
+    val trimVideo: (Media) -> Unit,
+)
+
+val LocalCreateActions = staticCompositionLocalOf<CreateActions?> { null }
+
 private data class SharedMediaKey(val id: Long)
 
 /** Morphs this item between the grid and the viewer. No-op outside a shared transition. */

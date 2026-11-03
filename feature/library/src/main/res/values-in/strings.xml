@@ -73,4 +73,11 @@
     <string name="person_hide">Sembunyikan orang ini</string>
     <string name="person_unhide">Tampilkan lagi</string>
     <string name="person_not_this">Bukan orang ini</string>
+    <string name="my_albums">Album kamu</string>
+    <string name="folders">Folder</string>
+    <string name="album_rename">Ganti nama album</string>
+    <string name="album_delete">Hapus album</string>
+    <string name="album_delete_title">Hapus \"%1$s\"?</string>
+    <string name="album_delete_body">Hanya albumnya yang dihapus. Fotonya tetap ada di galeri.</string>
+    <string name="album_remove_items">Keluarkan dari album</string>
 </resources>

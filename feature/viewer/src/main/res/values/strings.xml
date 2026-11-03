@@ -12,4 +12,6 @@
     <string name="open_in_maps">Open in maps</string>
     <string name="play">Play</string>
     <string name="pause">Pause</string>
+    <string name="info_text">Text in this photo</string>
+    <string name="info_copy_text">Copy text</string>
 </resources>
