@@ -42,4 +42,35 @@
     <string name="sort_added">Tanggal ditambahkan</string>
     <string name="sort_size">Ukuran</string>
     <string name="sort_name">Nama</string>
+    <string name="memories_title">Kenangan hari ini</string>
+    <plurals name="memories_years_ago">
+        <item quantity="other">%d tahun lalu</item>
+    </plurals>
+    <string name="memories_week_of">Minggu ini di %1$d</string>
+
+    <string name="people_title">Orang</string>
+    <string name="people_see_all">Lihat semua</string>
+    <string name="people_hidden_title">Orang yang disembunyikan</string>
+    <string name="people_show_hidden">Lihat yang disembunyikan</string>
+    <string name="people_more">Pilihan lain</string>
+    <string name="people_finding">Mencari wajah di foto kamu. Semuanya diproses di HP ini saja.</string>
+    <string name="people_indexing">Mengenali wajah… %1$d%%</string>
+    <plurals name="people_photo_count">
+        <item quantity="other">%d foto</item>
+    </plurals>
+    <string name="people_none">Belum ada orang</string>
+    <string name="people_none_body">Orang muncul di sini setelah wajahnya ada di beberapa foto.</string>
+    <string name="people_none_hidden">Tidak ada yang disembunyikan</string>
+    <string name="people_privacy_note">Wajah dikenali di HP ini. Tidak ada yang dikirim ke mana pun, dan data wajah bisa dihapus di Pengaturan.</string>
+    <string name="person_add_name">Tambahkan nama</string>
+    <string name="person_rename">Beri nama</string>
+    <string name="person_name_title">Siapa ini?</string>
+    <string name="person_name_hint">Nama</string>
+    <string name="person_merge_hint">Orang yang sama dengan yang sudah diberi nama? Pakai nama yang sama untuk menggabungkan.</string>
+    <string name="person_will_merge">Akan digabung dengan %1$s.</string>
+    <string name="person_merge">Gabungkan</string>
+    <string name="person_save">Simpan</string>
+    <string name="person_hide">Sembunyikan orang ini</string>
+    <string name="person_unhide">Tampilkan lagi</string>
+    <string name="person_not_this">Bukan orang ini</string>
 </resources>

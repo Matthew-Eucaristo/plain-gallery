@@ -4,7 +4,6 @@ import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.Until
 import org.junit.Rule
 import org.junit.Test
@@ -31,11 +30,10 @@ class BaselineProfileGenerator {
         startActivityAndWait()
         device.wait(Until.hasObject(By.scrollable(true)), TIMEOUT)
 
-        device.findObject(By.scrollable(true))?.run {
-            setGestureMargin(device.displayWidth / 5)
-            fling(Direction.DOWN)
-            fling(Direction.UP)
-        }
+        // Swipe rather than fling a found scrollable: the tab pager is scrollable too (sideways) and may be found first.
+        val x = device.displayWidth / 2
+        repeat(2) { device.swipe(x, device.displayHeight * 4 / 5, x, device.displayHeight / 5, 8) }
+        repeat(2) { device.swipe(x, device.displayHeight / 5, x, device.displayHeight * 4 / 5, 8) }
 
         // Open the first photo, swipe through a few, go back.
         device.findObject(By.descContains(".jpg"))?.click()
@@ -48,6 +46,11 @@ class BaselineProfileGenerator {
             device.findObject(By.text(tab))?.click()
             device.waitForIdle()
         }
+
+        // Swipe between tabs (away from the edges, which are system Back).
+        val y = device.displayHeight / 2
+        repeat(2) { device.swipe(device.displayWidth * 4 / 5, y, device.displayWidth / 5, y, 10); device.waitForIdle() }
+        repeat(2) { device.swipe(device.displayWidth / 5, y, device.displayWidth * 4 / 5, y, 10); device.waitForIdle() }
     }
 
     private companion object {

@@ -19,4 +19,13 @@
     <string name="settings_version">Version %1$s</string>
     <string name="settings_privacy_policy">Privacy policy</string>
     <string name="settings_source_code">Source code</string>
+    <string name="settings_memories">On this day</string>
+    <string name="settings_memories_body">Show photos from this day in earlier years at the top of Photos.</string>
+    <string name="settings_faces">Group faces</string>
+    <string name="settings_faces_body">Gallery recognizes faces on this phone, without internet, and groups them by person in Albums. Face data never leaves the phone.</string>
+    <string name="settings_faces_progress">%1$d of %2$d photos checked</string>
+    <string name="settings_faces_done">All photos checked</string>
+    <string name="settings_faces_off_title">Turn off face grouping?</string>
+    <string name="settings_faces_off_body">All face data and the names you gave will be deleted from this phone. Your photos are not touched.</string>
+    <string name="settings_faces_off_confirm">Turn off and delete</string>
 </resources>

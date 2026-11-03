@@ -46,4 +46,37 @@
     <string name="sort_added">Date added</string>
     <string name="sort_size">Size</string>
     <string name="sort_name">Name</string>
+    <string name="memories_title">On this day</string>
+    <plurals name="memories_years_ago">
+        <item quantity="one">%d year ago</item>
+        <item quantity="other">%d years ago</item>
+    </plurals>
+    <string name="memories_week_of">This week in %1$d</string>
+
+    <string name="people_title">People</string>
+    <string name="people_see_all">See all</string>
+    <string name="people_hidden_title">Hidden people</string>
+    <string name="people_show_hidden">Show hidden people</string>
+    <string name="people_more">More options</string>
+    <string name="people_finding">Looking for faces in your photos. This happens on this phone only.</string>
+    <string name="people_indexing">Recognizing faces… %1$d%%</string>
+    <plurals name="people_photo_count">
+        <item quantity="one">%d photo</item>
+        <item quantity="other">%d photos</item>
+    </plurals>
+    <string name="people_none">No people yet</string>
+    <string name="people_none_body">People appear here once a face shows up in a few photos.</string>
+    <string name="people_none_hidden">No hidden people</string>
+    <string name="people_privacy_note">Faces are recognized on this phone. Nothing is sent anywhere, and you can delete face data in Settings.</string>
+    <string name="person_add_name">Add a name</string>
+    <string name="person_rename">Name this person</string>
+    <string name="person_name_title">Who is this?</string>
+    <string name="person_name_hint">Name</string>
+    <string name="person_merge_hint">Same person as someone you named? Use the same name to put them together.</string>
+    <string name="person_will_merge">Will be joined with %1$s.</string>
+    <string name="person_merge">Join</string>
+    <string name="person_save">Save</string>
+    <string name="person_hide">Hide this person</string>
+    <string name="person_unhide">Show this person again</string>
+    <string name="person_not_this">Not this person</string>
 </resources>

@@ -25,6 +25,14 @@ sealed interface MediaCollection {
 
     @Serializable
     data class Search(val query: String) : MediaCollection
+
+    /** Photos of one face group. */
+    @Serializable
+    data class Person(val personId: Long) : MediaCollection
+
+    /** "On this day": photos taken on local epoch days [startDay, endDay). */
+    @Serializable
+    data class Memory(val startDay: Int, val endDay: Int) : MediaCollection
 }
 
 enum class AlbumSort { Taken, Added, Size, Name }

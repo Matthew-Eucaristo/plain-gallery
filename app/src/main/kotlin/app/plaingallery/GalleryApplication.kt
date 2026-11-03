@@ -5,6 +5,8 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import app.plaingallery.core.data.DataGraph
+import app.plaingallery.core.ui.image.FaceThumbnailFetcher
+import app.plaingallery.core.ui.image.FaceThumbnailKeyer
 import app.plaingallery.core.ui.image.MediaThumbnailFetcher
 import app.plaingallery.core.ui.image.MediaThumbnailKeyer
 import coil3.ImageLoader
@@ -19,8 +21,15 @@ class GalleryApplication : Application(), DataGraph.Owner, SingletonImageLoader.
     override fun onCreate() {
         super.onCreate()
         ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onStart(owner: LifecycleOwner) = dataGraph.media.startObserving()
-            override fun onStop(owner: LifecycleOwner) = dataGraph.media.stopObserving()
+            override fun onStart(owner: LifecycleOwner) {
+                dataGraph.media.startObserving()
+                dataGraph.faces.start()
+            }
+
+            override fun onStop(owner: LifecycleOwner) {
+                dataGraph.media.stopObserving()
+                dataGraph.faces.stop()
+            }
         })
     }
 
@@ -28,6 +37,8 @@ class GalleryApplication : Application(), DataGraph.Owner, SingletonImageLoader.
         .components {
             add(MediaThumbnailKeyer())
             add(MediaThumbnailFetcher.Factory())
+            add(FaceThumbnailKeyer())
+            add(FaceThumbnailFetcher.Factory())
             add(AnimatedImageDecoder.Factory())
         }
         .memoryCache { MemoryCache.Builder().maxSizePercent(context, 0.3).build() }

@@ -37,6 +37,8 @@ import app.plaingallery.core.ui.LocalDataGraph
 import app.plaingallery.core.ui.LocalNavAnimatedVisibilityScope
 import app.plaingallery.core.ui.LocalSharedTransitionScope
 import app.plaingallery.feature.library.CollectionScreen
+import app.plaingallery.feature.library.PeopleScreen
+import app.plaingallery.feature.library.PersonScreen
 import app.plaingallery.feature.settings.SettingsScreen
 import app.plaingallery.feature.tidy.TidyScreen
 import app.plaingallery.feature.viewer.ViewerScreen
@@ -56,6 +58,12 @@ data object TidyKey : NavKey
 
 @Serializable
 data object SettingsKey : NavKey
+
+@Serializable
+data object PeopleKey : NavKey
+
+@Serializable
+data class PersonKey(val personId: Long) : NavKey
 
 @Composable
 fun GalleryApp() {
@@ -109,6 +117,8 @@ fun GalleryApp() {
                                 onRequestAccess = requestAccess,
                                 onOpen = openViewer(HomeKey),
                                 onOpenCollection = { push(HomeKey, CollectionKey(it)) },
+                                onOpenPeople = { push(HomeKey, PeopleKey) },
+                                onOpenPerson = { push(HomeKey, PersonKey(it)) },
                                 onOpenTidy = { push(HomeKey, TidyKey) },
                                 onOpenSettings = { push(HomeKey, SettingsKey) },
                             )
@@ -118,6 +128,8 @@ fun GalleryApp() {
                     entry<CollectionKey> { key -> Animated { CollectionScreen(key.collection, onOpen = openViewer(key), onBack = pop(key)) } }
                     entry<TidyKey> { TidyScreen(onBack = pop(TidyKey)) }
                     entry<SettingsKey> { SettingsScreen(onBack = pop(SettingsKey)) }
+                    entry<PeopleKey> { PeopleScreen(onOpenPerson = { push(PeopleKey, PersonKey(it)) }, onBack = pop(PeopleKey)) }
+                    entry<PersonKey> { key -> Animated { PersonScreen(key.personId, onOpen = openViewer(key), onBack = pop(key)) } }
                 },
             )
         }

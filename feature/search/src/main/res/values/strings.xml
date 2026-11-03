@@ -31,4 +31,5 @@
     <string name="query_this_week">this week</string>
     <string name="query_last_month">last month</string>
     <string name="query_eid">eid</string>
+    <string name="search_people">People</string>
 </resources>

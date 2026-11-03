@@ -1,6 +1,7 @@
 package app.plaingallery.core.data.settings
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -32,6 +33,20 @@ class SettingsRepository internal constructor(private val context: Context) {
 
     /** After how many days an untouched inbox item counts as stale and is offered for clean-up. */
     val staleInboxDays: Flow<Int> = store.data.map { it[STALE_DAYS] ?: DEFAULT_STALE_DAYS }
+
+    /** "On this day" cards at the top of Photos. Some people would rather not be reminded; they can turn it off. */
+    val showMemories: Flow<Boolean> = store.data.map { it[SHOW_MEMORIES] ?: true }
+
+    /** Group faces into people, on this device only. Turning it off also deletes the face data. */
+    val faceGrouping: Flow<Boolean> = store.data.map { it[FACE_GROUPING] ?: true }
+
+    suspend fun setShowMemories(show: Boolean) {
+        store.edit { it[SHOW_MEMORIES] = show }
+    }
+
+    suspend fun setFaceGrouping(enabled: Boolean) {
+        store.edit { it[FACE_GROUPING] = enabled }
+    }
 
     suspend fun setShareOptions(options: ShareOptions) {
         store.edit {
@@ -67,5 +82,7 @@ class SettingsRepository internal constructor(private val context: Context) {
             this?.let { name -> enumValues<T>().firstOrNull { it.name == name } } ?: default
         private val RECENT_TARGETS = stringPreferencesKey("recent_share_targets")
         private val STALE_DAYS = intPreferencesKey("stale_inbox_days")
+        private val SHOW_MEMORIES = booleanPreferencesKey("show_memories")
+        private val FACE_GROUPING = booleanPreferencesKey("face_grouping")
     }
 }

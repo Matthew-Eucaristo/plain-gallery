@@ -14,6 +14,7 @@ import app.plaingallery.core.model.Media
 import app.plaingallery.core.model.MediaCollection
 import app.plaingallery.core.model.MediaKind
 import app.plaingallery.core.model.MediaSource
+import app.plaingallery.core.model.People
 import app.plaingallery.core.model.SearchQueryParser
 import java.time.Instant
 import java.time.LocalDate
@@ -54,6 +55,7 @@ class MediaRepository internal constructor(
     private val dao: MediaDao,
     private val scanner: MediaStoreScanner,
     private val scope: CoroutineScope,
+    people: StateFlow<People>,
 ) {
     private val hidden = MutableStateFlow<Set<Long>>(emptySet())
     private val favoriteOverrides = MutableStateFlow<Map<Long, Boolean>>(emptyMap())
@@ -67,11 +69,13 @@ class MediaRepository internal constructor(
         dao.observeAll().map(::toMedia),
         hidden,
         favoriteOverrides,
-    ) { items, hidden, favorites ->
+        people,
+    ) { items, hidden, favorites, people ->
         val visible = if (hidden.isEmpty()) items else items.filter { it.id !in hidden }
         Library(
             if (favorites.isEmpty()) visible
             else visible.map { media -> favorites[media.id]?.let { media.copy(isFavorite = it) } ?: media },
+            people,
         )
     }.flowOn(Dispatchers.Default).stateIn(scope, SharingStarted.Eagerly, null)
 

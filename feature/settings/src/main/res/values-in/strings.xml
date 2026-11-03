@@ -18,4 +18,13 @@
     <string name="settings_version">Versi %1$s</string>
     <string name="settings_privacy_policy">Kebijakan privasi</string>
     <string name="settings_source_code">Kode sumber</string>
+    <string name="settings_memories">Kenangan hari ini</string>
+    <string name="settings_memories_body">Tampilkan foto dari tanggal yang sama di tahun-tahun sebelumnya di atas Foto.</string>
+    <string name="settings_faces">Kelompokkan wajah</string>
+    <string name="settings_faces_body">Gallery mengenali wajah di HP ini, tanpa internet, lalu mengelompokkannya per orang di Album. Data wajah tidak pernah keluar dari HP.</string>
+    <string name="settings_faces_progress">%1$d dari %2$d foto sudah diperiksa</string>
+    <string name="settings_faces_done">Semua foto sudah diperiksa</string>
+    <string name="settings_faces_off_title">Matikan pengelompokan wajah?</string>
+    <string name="settings_faces_off_body">Semua data wajah dan nama yang kamu berikan akan dihapus dari HP ini. Foto kamu tidak berubah.</string>
+    <string name="settings_faces_off_confirm">Matikan dan hapus</string>
 </resources>

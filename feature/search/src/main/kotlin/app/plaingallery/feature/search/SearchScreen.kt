@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -53,6 +54,7 @@ import app.plaingallery.core.model.Media
 import app.plaingallery.core.model.MediaCollection
 import app.plaingallery.core.model.MediaKind
 import app.plaingallery.core.model.MediaSource
+import app.plaingallery.core.model.Person
 import app.plaingallery.core.model.SearchQuery
 import app.plaingallery.core.ui.EmptyState
 import app.plaingallery.core.ui.LocalDataGraph
@@ -61,10 +63,15 @@ import app.plaingallery.core.ui.format.iconRes
 import app.plaingallery.core.ui.format.labelRes
 import app.plaingallery.core.ui.format.monthLabel
 import app.plaingallery.core.ui.format.shortDateLabel
+import app.plaingallery.core.ui.image.FaceAvatar
 import app.plaingallery.core.ui.rememberCollection
 import app.plaingallery.core.ui.R as UiR
 
-/** Type and results appear on every keystroke; chips show what was understood. */
+/**
+ * Type and results appear on every keystroke; chips show what was understood.
+ * [autoFocus] opens the keyboard whenever it turns true with an empty query (the tab came into view),
+ * and closes it when it turns false (the user swiped away).
+ */
 @Composable
 fun SearchScreen(
     onOpen: (MediaCollection, Media) -> Unit,
@@ -77,6 +84,9 @@ fun SearchScreen(
     val collection = MediaCollection.Search(trimmed)
     val results by rememberCollection(collection)
     val parsed = remember(trimmed) { graph.media.searchParser.parse(trimmed) }
+    val library by graph.media.library.collectAsStateWithLifecycle()
+    // Words that are (part of) someone's name also find that person's photos; show who was understood.
+    val people = remember(library, parsed) { parsed.terms.flatMap { library?.peopleMatching(it).orEmpty() }.distinct() }
 
     MediaBrowser(
         items = if (trimmed.isEmpty()) emptyList() else results,
@@ -86,7 +96,7 @@ fun SearchScreen(
         header = if (trimmed.isEmpty()) null else {
             {
                 item(key = "understood", span = { GridItemSpan(maxLineSpan) }) {
-                    Understood(parsed, results.orEmpty().size)
+                    Understood(parsed, people, results.orEmpty().size)
                 }
             }
         },
@@ -105,7 +115,15 @@ fun SearchScreen(
 private fun SearchField(query: String, onQueryChange: (String) -> Unit, autoFocus: Boolean) {
     val focus = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
-    LaunchedEffect(Unit) { if (autoFocus) focus.requestFocus() }
+    val focusManager = LocalFocusManager.current
+    LaunchedEffect(autoFocus) {
+        if (autoFocus) {
+            if (query.isEmpty()) focus.requestFocus()
+        } else {
+            keyboard?.hide()
+            focusManager.clearFocus()
+        }
+    }
     TextField(
         value = query,
         onValueChange = onQueryChange,
@@ -133,7 +151,7 @@ private fun SearchField(query: String, onQueryChange: (String) -> Unit, autoFocu
 }
 
 @Composable
-private fun Understood(query: SearchQuery, count: Int) {
+private fun Understood(query: SearchQuery, people: List<Person>, count: Int) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier
@@ -154,6 +172,13 @@ private fun Understood(query: SearchQuery, count: Int) {
             AssistChip(onClick = {}, label = { Text(stringResource(if (it == MediaKind.Video) R.string.kind_video else R.string.kind_photo)) })
         }
         if (query.favoritesOnly) AssistChip(onClick = {}, label = { Text(stringResource(R.string.favorites)) })
+        people.forEach { person ->
+            AssistChip(
+                onClick = {},
+                label = { Text(person.name.orEmpty()) },
+                leadingIcon = { FaceAvatar(person, Modifier.size(18.dp)) },
+            )
+        }
         query.terms.forEach { AssistChip(onClick = {}, label = { Text("\"$it\"") }) }
     }
 }
@@ -169,6 +194,19 @@ private fun Suggestions(onPick: (String) -> Unit) {
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
     ) {
+        val people = library?.people.orEmpty().filter { it.name != null }.take(MAX_PEOPLE)
+        if (people.isNotEmpty()) {
+            Section(stringResource(R.string.search_people)) {
+                people.forEach { person ->
+                    val name = person.name.orEmpty()
+                    SuggestionChip(
+                        onClick = { onPick(name.lowercase()) },
+                        label = { Text(name) },
+                        icon = { FaceAvatar(person, Modifier.size(18.dp)) },
+                    )
+                }
+            }
+        }
         Section(stringResource(R.string.search_sources)) {
             listOf(MediaSource.WhatsApp, MediaSource.Screenshot, MediaSource.Camera, MediaSource.Download).forEach { source ->
                 val label = stringResource(source.labelRes)
@@ -212,6 +250,8 @@ private fun Suggestions(onPick: (String) -> Unit) {
         }
     }
 }
+
+private const val MAX_PEOPLE = 12
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

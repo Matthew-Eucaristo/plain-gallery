@@ -25,6 +25,8 @@ compose-material3 = "1.5.0-beta02"
 media3 = "1.11.1"
 coil = "3.6.3"
 telephoto = "0.19.0"
+# On-device face detection/recognition runtime (Apache-2.0, no network).
+litert = "2.3.1"
 junit = "4.13.2"
 
 [libraries]
@@ -67,6 +69,7 @@ media3-effect = { module = "androidx.media3:media3-effect", version.ref = "media
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil" }
 telephoto-zoomable-image-coil3 = { module = "me.saket.telephoto:zoomable-image-coil3", version.ref = "telephoto" }
+litert = { module = "com.google.ai.edge.litert:litert", version.ref = "litert" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
 

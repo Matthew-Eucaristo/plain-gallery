@@ -39,7 +39,7 @@ Teknik: index Room sebagai cermin MediaStore, satu snapshot `Library` di memori 
 
 ## 4. Arsitektur informasi
 
-Bottom navigation (4 tab):
+Bottom navigation (4 tab). Pindah tab dengan **geser kiri/kanan** di mana saja, atau ketuk bar (tab sebelah bergeser, tab jauh langsung muncul). Back dari tab lain kembali ke Foto.
 
 1. **Foto**: *kenangan*. Hasil kamera + foto lain yang bukan kiriman, ditambah kiriman yang sudah kamu **Simpan**.
 2. **Kiriman**: *inbox*. WhatsApp, screenshot, download, Telegram. Diurutkan berdasarkan kapan diterima.
@@ -99,6 +99,8 @@ Pengaturan dibuka dari ikon di top bar.
 - Folder diurutkan dari yang terbaru; cover = item terbaru.
 - Detail album: urutan Tanggal diambil / Tanggal ditambahkan / Ukuran / Nama.
 
+- Baris **Orang** di bawah pintasan (jika pengelompokan wajah aktif): wajah bulat + nama, "Lihat semua". Selama wajah masih dikenali: progres "Mengenali wajah… 42%".
+
 ### 5.8 Sampah
 - Item yang ada di Sampah sistem, dengan sisa hari sebelum dihapus permanen.
 - Pulihkan, Hapus permanen (konfirmasi), Kosongkan.
@@ -112,7 +114,9 @@ Pengaturan dibuka dari ikon di top bar.
   - Sumber: `wa`/`whatsapp`, `ss`/`screenshot`/`tangkapan`, `kamera`/`camera`, `download`/`unduhan`, `telegram`
   - Favorit: `favorit`/`favorite`/`suka`
   - Tanggal: `hari ini`, `kemarin`, `minggu ini`, `minggu lalu`, `bulan ini`, `bulan lalu`, `tahun ini`, `tahun lalu`, nama bulan (+ tahun), `17 agustus 2023`, tahun `2023`, `lebaran 2024`, `natal`, `tahun baru`
+  - Nama orang: kata yang cocok dengan awal kata di nama seseorang ("budi", "bud") juga menemukan foto orang itu.
   - Sisa kata → dicocokkan ke nama file, nama album, path.
+- Saran saat kosong juga menampilkan orang yang sudah diberi nama.
 
 ### 5.10 Viewer default (buka dengan…)
 - `ViewerActivity` menangani `VIEW`, `android.provider.action.REVIEW`, dan `com.android.camera.action.REVIEW` untuk `image/*` dan `video/*` (content:// dan file://).
@@ -128,6 +132,8 @@ Pengaturan dibuka dari ikon di top bar.
 - **Hapus tanpa konfirmasi** (izin `MANAGE_MEDIA`, Android 12+).
 - **Buka foto dengan Gallery**: petunjuk + tombol ke pengaturan app default.
 - Batas umur kiriman "lama": 30 / 60 / 90 hari.
+- **Kenangan hari ini** (aktif): kartu di atas Foto.
+- **Kelompokkan wajah** (aktif): progres "1.234 dari 8.000 foto". Mematikan = konfirmasi lalu semua data wajah dan nama dihapus.
 - Tentang: versi, "Tanpa internet. Tanpa iklan. Open source."
 
 ### 5.13 Izin
@@ -140,6 +146,21 @@ Pengaturan dibuka dari ikon di top bar.
 - **Simpan salinan**: file baru di folder yang sama (DCIM/Pictures; sumber lain seperti WhatsApp → `Pictures/Edited/`), dengan EXIF tanggal, kamera dan lokasi; orientasi dinormalkan. Asli tidak pernah diubah.
 - Juga muncul sebagai pilihan "Edit" untuk app lain (intent `ACTION_EDIT` gambar).
 - Selalu gelap, seperti viewer.
+
+### 5.15 Kenangan hari ini
+- Baris kartu di atas grid Foto, satu kartu per tahun sebelumnya: "1 tahun lalu · 3 Nov 2025". Hanya dari Foto (kamera + yang disimpan), bukan kiriman atau Sampah.
+- Tanggal sama persis (29 Feb → 28 Feb di tahun biasa). Jika tahun itu tidak punya foto di tanggal tsb., pakai ±3 hari ("Minggu ini di 2024") asalkan ada ≥ 3 foto.
+- Sampul: favorit > ada orang yang dikenal > foto (bukan video) > yang di tengah hari itu.
+- Ketuk → viewer, urut dari yang terlama (seperti cerita). Tanggal dicek ulang tiap app kembali dibuka.
+- Bisa dimatikan di Pengaturan (ada yang tidak ingin diingatkan).
+
+### 5.16 Orang (pengelompokan wajah)
+- Semua di HP: YuNet (deteksi + 5 titik wajah, MIT) → wajah diluruskan 112×112 → SFace (embedding 128-d, Apache-2.0) via LiteRT di CPU. Model ±10 MB dibundel; tanpa internet. Detail & pengukuran: `core/faces/MODELS.md`.
+- Yang dianalisis: foto (bukan video), Foto dulu lalu kiriman, terbaru dulu; screenshot dilewati. Hanya saat app terbuka, satu foto per waktu di thread prioritas rendah; progres disimpan tiap beberapa foto dan dilanjutkan nanti. File yang berubah dianalisis ulang; yang terhapus ikut hilang.
+- Wajah dilewati jika tidak yakin (skor < 0.7), kecil (< 40 px) atau menyamping.
+- Pengelompokan bertahap: wajah masuk ke kelompok dengan rata-rata terdekat (cosine ≥ 0.48) atau membuat kelompok baru; kelompok yang ternyata sama digabung (≥ 0.55). Lebih baik terpecah daripada tercampur.
+- Kelompok tanpa nama tampil jika ada di ≥ 3 foto; yang bernama selalu tampil, di depan.
+- Layar orang: grid fotonya; ketuk judul/✎ untuk memberi nama. Nama yang sudah dipakai orang lain → kedua kelompok **digabung** (dialog memberitahu dulu). Pilih foto → **Bukan orang ini**. Menu: **Sembunyikan** (bisa dilihat lagi dari "Lihat yang disembunyikan").
 
 ## 6. Klasifikasi sumber
 
@@ -164,6 +185,7 @@ core:model           Media, Album, MediaSource, MediaCollection (Kotlin murni)
 core:data            MediaStore source, index Room 3, sync inkremental,
                      MediaRepository (snapshot Library + optimistic hide),
                      aksi tulis (trash/favorit/hapus), share & konversi, pencarian, settings
+core:faces           FaceEngine (LiteRT: YuNet + SFace), decoding & alignment murni
 core:ui              tema Expressive, MediaGrid (pinch, scrubber, drag-select),
                      thumbnail Coil, share sheet, launcher write-request
 feature:library      Foto, Kiriman, Album, detail Album, Sampah
@@ -183,7 +205,6 @@ Diurutkan menurut nilai dibanding usaha (riset Nov 2026). Semua offline.
 
 **Berikutnya (kecil)**
 - Bersihkan ruang: video besar, media WhatsApp lama, screenshot (dari index Room; pakai ulang Rapikan + Sampah/Urungkan).
-- Kartu "Hari ini, tahun lalu".
 - Putar Motion Photo (Media3 `JpegMotionPhotoExtractor`; HEIC butuh langkah tambahan).
 - Predictive back yang mengecilkan foto kembali ke grid (Nav3).
 - Foto → PDF (untuk formulir sekolah/kantor).
@@ -196,7 +217,8 @@ Diurutkan menurut nilai dibanding usaha (riset Nov 2026). Semua offline.
 
 **Besar**
 - Cari dengan konsep ("kucing", "pantai", "makanan"): model gambar CLIP berlisensi bebas (TinyCLIP/OpenAI CLIP, MIT) + daftar konsep EN/ID yang embedding teksnya dihitung saat build. Ukur kecepatan di HP budget dulu.
-- Folder terkunci, pengelompokan wajah.
+- Folder terkunci.
+- Orang: wajah dari video, pilih sampul sendiri, saran "orang yang sama?" untuk kelompok yang mirip.
 - Plugin WhatsApp "dari siapa" (eksperimental).
 
 Tidak dikejar: Gemini Nano (hanya HP flagship), F-Droid.

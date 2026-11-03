@@ -55,11 +55,17 @@ import app.plaingallery.core.ui.R as UiR
 @Composable
 fun AlbumsScreen(
     onOpenCollection: (MediaCollection) -> Unit,
+    onOpenPeople: () -> Unit,
+    onOpenPerson: (Long) -> Unit,
     onOpenSettings: () -> Unit,
     bottomPadding: Dp,
 ) {
-    val library by LocalDataGraph.current.media.library.collectAsStateWithLifecycle()
+    val graph = LocalDataGraph.current
+    val library by graph.media.library.collectAsStateWithLifecycle()
     val albums = library?.albums.orEmpty()
+    val faceGrouping by graph.settings.faceGrouping.collectAsStateWithLifecycle(initialValue = false)
+    val faceProgress by graph.faces.progress.collectAsStateWithLifecycle()
+    val people = library?.people.orEmpty()
     val scroll = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     Scaffold(
@@ -85,7 +91,7 @@ fun AlbumsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.fillMaxSize(),
         ) {
-            item(span = { GridItemSpan(maxLineSpan) }, contentType = "shortcuts") {
+            item(key = "shortcuts", span = { GridItemSpan(maxLineSpan) }, contentType = "shortcuts") {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Shortcut(R.string.title_favorites, rememberVectorPainter(Icons.Filled.Favorite), Modifier.weight(1f)) {
@@ -103,6 +109,11 @@ fun AlbumsScreen(
                             onOpenCollection(MediaCollection.Trash)
                         }
                     }
+                }
+            }
+            if (faceGrouping && (people.isNotEmpty() || faceProgress.running)) {
+                item(key = "people", span = { GridItemSpan(maxLineSpan) }, contentType = "people") {
+                    PeopleSection(people, faceProgress, onOpenPerson = { onOpenPerson(it.id) }, onSeeAll = onOpenPeople)
                 }
             }
             items(albums, key = { it.bucketId }, contentType = { "album" }) { album ->
