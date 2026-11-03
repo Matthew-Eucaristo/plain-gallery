@@ -65,6 +65,8 @@ import app.plaingallery.core.ui.R as UiR
 fun VideoTrimScreen(mediaId: Long, onClose: () -> Unit) {
     val graph = LocalDataGraph.current
     val context = LocalContext.current
+    val savedText = stringResource(R.string.create_saved)
+    val failedText = stringResource(R.string.create_failed)
     val scope = rememberCoroutineScope()
     val library by graph.media.library.collectAsStateWithLifecycle()
     val media = library?.get(mediaId)
@@ -110,7 +112,7 @@ fun VideoTrimScreen(mediaId: Long, onClose: () -> Unit) {
             scope.launch {
                 progress = null
                 job = null
-                Toast.makeText(context, if (result.isSuccess) context.getString(R.string.create_saved) else context.getString(R.string.create_failed), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, if (result.isSuccess) savedText else failedText, Toast.LENGTH_SHORT).show()
                 if (result.isSuccess) onClose()
             }
         }

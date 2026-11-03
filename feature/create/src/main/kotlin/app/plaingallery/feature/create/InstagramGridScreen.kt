@@ -32,6 +32,8 @@ import app.plaingallery.core.ui.R as UiR
 fun InstagramGridScreen(mediaId: Long, onClose: () -> Unit) {
     val graph = LocalDataGraph.current
     val context = LocalContext.current
+    val savedText = stringResource(R.string.create_grid_saved)
+    val failedText = stringResource(R.string.create_failed)
     val library by graph.media.library.collectAsStateWithLifecycle()
     val media = library?.get(mediaId)
     var rows by rememberSaveable { mutableIntStateOf(1) }
@@ -51,7 +53,6 @@ fun InstagramGridScreen(mediaId: Long, onClose: () -> Unit) {
         val m = media ?: return
         if (saving) return
         saving = true
-        val savedText = context.getString(R.string.create_grid_saved)
         val chosenRows = rows
         val chosenShape = shape
         graph.scope.launch {
@@ -74,7 +75,7 @@ fun InstagramGridScreen(mediaId: Long, onClose: () -> Unit) {
                 }
             }
             withContext(Dispatchers.Main) {
-                Toast.makeText(context, if (result.isSuccess) savedText else context.getString(R.string.create_failed), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, if (result.isSuccess) savedText else failedText, Toast.LENGTH_LONG).show()
             }
         }
         onClose()

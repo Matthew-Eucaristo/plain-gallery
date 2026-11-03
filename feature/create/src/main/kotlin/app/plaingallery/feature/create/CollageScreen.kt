@@ -56,6 +56,8 @@ import app.plaingallery.core.ui.R as UiR
 fun CollageScreen(mediaIds: List<Long>, onClose: () -> Unit) {
     val graph = LocalDataGraph.current
     val context = LocalContext.current
+    val savedText = stringResource(R.string.create_saved)
+    val failedText = stringResource(R.string.create_failed)
     val library by graph.media.library.collectAsStateWithLifecycle()
     val media = remember(library == null) { mediaIds.mapNotNull { library?.get(it) }.filter { !it.isVideo } }
     var layout by rememberSaveable { mutableStateOf(CollageLayout.Grid) }
@@ -78,7 +80,6 @@ fun CollageScreen(mediaIds: List<Long>, onClose: () -> Unit) {
         if (saving) return
         saving = true
         val chosen = media
-        val savedText = context.getString(R.string.create_saved)
         graph.scope.launch {
             val result = runCatching {
                 val bitmap = withContext(Dispatchers.IO) {
@@ -93,7 +94,7 @@ fun CollageScreen(mediaIds: List<Long>, onClose: () -> Unit) {
                 }
             }
             withContext(Dispatchers.Main) {
-                Toast.makeText(context, if (result.isSuccess) savedText else context.getString(R.string.create_failed), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, if (result.isSuccess) savedText else failedText, Toast.LENGTH_SHORT).show()
             }
         }
         // Saving finishes in the app's scope; the screen can go right away.

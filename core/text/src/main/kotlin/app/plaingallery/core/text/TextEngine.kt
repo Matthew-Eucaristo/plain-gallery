@@ -10,6 +10,10 @@ import android.graphics.RectF
 import com.google.ai.edge.litert.Accelerator
 import com.google.ai.edge.litert.CompiledModel
 import com.google.ai.edge.litert.TensorBuffer
+import org.tensorflow.lite.Interpreter
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.nio.FloatBuffer
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
@@ -21,18 +25,20 @@ import kotlin.math.roundToInt
  * including English and Indonesian) through LiteRT on the CPU. About 2 MB of int8 models.
  *
  * Detection runs on overlapping 736×736 tiles; each found line is cropped from the full-size image and
- * read by the recognizer, whose input width follows the line's length. Not thread-safe; close when done.
+ * read by the recognizer, whose input width follows the line's length. CompiledModel cannot resize inputs,
+ * so the recognizer runs on the classic Interpreter bundled in the same LiteRT library. Not thread-safe;
+ * close when done.
  */
 class TextEngine private constructor(
     private val detector: CompiledModel,
-    private val recognizer: CompiledModel,
+    private val recognizer: Interpreter,
     private val characters: List<String>,
 ) : AutoCloseable {
     private val detectorIn = detector.createInputBuffers()
     private val detectorOut = detector.createOutputBuffers()
     private var recognizerWidth = 0
-    private var recognizerIn: List<TensorBuffer> = emptyList()
-    private var recognizerOut: List<TensorBuffer> = emptyList()
+    private var recognizerIn: FloatBuffer = FloatBuffer.allocate(0)
+    private var recognizerOut: FloatBuffer = FloatBuffer.allocate(0)
 
     private val paint = Paint(Paint.FILTER_BITMAP_FLAG)
     private val tileSize = TextDetection.TILE
@@ -108,10 +114,10 @@ class TextEngine private constructor(
         val inputWidth = TextDetection.recognizerWidth(crop.width(), crop.height())
         val contentWidth = min(inputWidth, ceil(Recognizer.HEIGHT.toDouble() * crop.width() / crop.height()).toInt())
         if (inputWidth != recognizerWidth) {
-            (recognizerIn + recognizerOut).forEach { it.close() }
-            recognizer.resizeInputTensor(INPUT_NAME, intArrayOf(1, Recognizer.HEIGHT, inputWidth, 3))
-            recognizerIn = recognizer.createInputBuffers()
-            recognizerOut = recognizer.createOutputBuffers()
+            recognizer.resizeInput(0, intArrayOf(1, Recognizer.HEIGHT, inputWidth, 3))
+            recognizer.allocateTensors()
+            recognizerIn = floatBuffer(recognizer.getInputTensor(0).numElements())
+            recognizerOut = floatBuffer(recognizer.getOutputTensor(0).numElements())
             recognizerWidth = inputWidth
         }
         val line = Bitmap.createBitmap(contentWidth, Recognizer.HEIGHT, Bitmap.Config.ARGB_8888)
@@ -130,15 +136,20 @@ class TextEngine private constructor(
                 input[o + 2] = (p shr 16 and 0xFF) / 127.5f - 1f
             }
         }
-        recognizerIn[0].writeFloat(input)
+        recognizerIn.clear()
+        recognizerIn.put(input).rewind()
+        recognizerOut.clear()
         recognizer.run(recognizerIn, recognizerOut)
-        val logits = recognizerOut[0].readFloat()
+        val logits = FloatArray(recognizerOut.capacity()).also { recognizerOut.rewind(); recognizerOut.get(it) }
         val classes = characters.size + 1 // blank first
         return Recognizer.decode(logits, logits.size / classes, classes, characters)
     }
 
+    private fun floatBuffer(size: Int): FloatBuffer =
+        ByteBuffer.allocateDirect(size * Float.SIZE_BYTES).order(ByteOrder.nativeOrder()).asFloatBuffer()
+
     override fun close() {
-        (detectorIn + detectorOut + recognizerIn + recognizerOut).forEach { it.close() }
+        (detectorIn + detectorOut).forEach { it.close() }
         detector.close()
         recognizer.close()
         tileBitmap.recycle()
@@ -149,7 +160,6 @@ class TextEngine private constructor(
         const val ANALYSIS_PX = 2400
         private const val MIN_IMAGE_PX = 32
         private const val MIN_CONFIDENCE = 0.5f
-        private const val INPUT_NAME = "x"
         private const val DETECTOR = "text/text_detection.tflite"
         private const val RECOGNIZER = "text/text_recognition.tflite"
         private const val DICTIONARY = "text/text_dictionary.txt"
@@ -164,7 +174,9 @@ class TextEngine private constructor(
             val options = { CompiledModel.Options(Accelerator.CPU).apply { cpuOptions = CompiledModel.CpuOptions(numThreads = 2) } }
             val detector = CompiledModel.create(assets, DETECTOR, options())
             val recognizer = try {
-                CompiledModel.create(assets, RECOGNIZER, options())
+                val model = assets.open(RECOGNIZER).use { it.readBytes() }
+                val buffer = ByteBuffer.allocateDirect(model.size).order(ByteOrder.nativeOrder()).put(model).rewind() as ByteBuffer
+                Interpreter(buffer, Interpreter.Options().setNumThreads(2))
             } catch (e: Exception) {
                 detector.close()
                 throw e

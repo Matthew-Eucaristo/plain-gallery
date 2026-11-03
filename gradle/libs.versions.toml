@@ -26,7 +26,7 @@ media3 = "1.11.1"
 coil = "3.6.3"
 telephoto = "0.19.0"
 # On-device face detection/recognition runtime (Apache-2.0, no network).
-litert = "2.3.1"
+litert = "2.3.2"
 junit = "4.13.2"
 
 [libraries]

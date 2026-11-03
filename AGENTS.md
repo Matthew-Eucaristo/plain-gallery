@@ -8,13 +8,14 @@ Product spec and roadmap: `docs/SPEC.md`.
 - Compose BOM 2026.09; **Material 3 pinned to 1.5.0-beta** for Expressive components (`gradle/libs.versions.toml`).
 - Navigation 3, Room 3 (KSP, framework SQLite driver), Coil 3, Telephoto (zoom/subsampling), Media3 ExoPlayer + `media3-ui-compose`, DataStore.
 - LiteRT 2.x (`CompiledModel`, CPU) for the bundled models: faces (YuNet + SFace, `core/faces/MODELS.md`) and OCR (PP-OCRv6 tiny, `core/text/MODELS.md`).
+  Its `com.google.android.play` deps (proprietary AI/asset delivery for the unused `ModelProvider`) are excluded and its FOREGROUND_SERVICE* permissions removed in the manifest.
 - minSdk 30 (trash/favorite MediaStore APIs, `GENERATION_MODIFIED`), target/compile 37.
 - Manual DI: `DataGraph` (core:data), owned by `GalleryApplication`, exposed to Compose via `LocalDataGraph`.
 
 ## Modules
 - `core:model` — pure Kotlin domain: `Media`, `Library` (cached views per snapshot, incl. `people` and `memories(today)`), `MediaCollection`, `SourceClassifier`, `SearchQueryParser`, `Memories` (on this day), `FaceClusterer`, `People`. Unit-tested.
 - `core:faces` — `FaceEngine` (LiteRT: YuNet detect → 5-point align → SFace 128-d embedding); pure `YuNet` decoding and `FaceAlignment` are unit-tested. Models in `src/main/assets/faces`, rebuilt by `scripts/convert-face-models.py`.
-- `core:text` — `TextEngine` (LiteRT: tiled DB detection → per-line CTC recognition, dynamic width via `resizeInputTensor("x")`); pure `TextDetection`/`Recognizer` are unit-tested. Models rebuilt by `scripts/convert-text-models.py`.
+- `core:text` — `TextEngine` (LiteRT: tiled DB detection → per-line CTC recognition, dynamic width via the classic `org.tensorflow.lite.Interpreter.resizeInput`, since `CompiledModel` cannot resize); pure `TextDetection`/`Recognizer` are unit-tested. Models rebuilt by `scripts/convert-text-models.py`.
 - `core:data` — MediaStore scanner, Room index, `MediaRepository` (sync + optimistic hide/favorite), `MediaWriter` (create*Request), share/convert, settings, `FaceRepository` (face index in `faces.db`, clustering, names), `TextRepository` (`text.db`), `AlbumRepository` (`albums.db`), `MediaSaver` + `VideoTrimmer` for the creative tools.
 - `core:ui` — theme, thumbnail pipeline, `MediaGrid` (pinch, scrubber, drag-select), `MediaBrowser`, share sheet, `MediaActions`.
 - `feature:{library,viewer,search,tidy,settings,editor,create}` — screens (`create`: collage, Instagram grid, video trim, opened through `LocalCreateActions` from the selection toolbar and viewer); features never depend on each other (the viewer opens the editor through `ACTION_EDIT` + its own package, handled by `EditActivity`).

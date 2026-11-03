@@ -8,6 +8,7 @@ android {
 }
 
 dependencies {
-    implementation(libs.litert)
+    // LiteRT pulls in Play AI/asset delivery (proprietary, downloads models) for ModelProvider, which is unused.
+    implementation(libs.litert) { exclude(group = "com.google.android.play") }
     testImplementation(libs.junit)
 }
