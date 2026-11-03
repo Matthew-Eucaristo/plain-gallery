@@ -40,7 +40,9 @@ Product spec and roadmap: `docs/SPEC.md`.
 - `LazyGridItemInfo.offset` excludes top content padding; hit-test with `viewportStartOffset` (see `GridGestures.kt`).
   Screen header items precede grid entries, so grid index = header count + entry index.
 - Video: some hardware decoders (and the emulator's goldfish decoder) fail. `Codecs.selector` puts software decoders first after one failure; used by `ViewerPlayer` (PlaybackException 4001–4003) and `MediaConverter` (ExportException 3001–3002; different code ranges).
-- Emulator testing: adb tap helpers break in zsh (no word splitting); write them as bash scripts. adb can't multi-touch: test pinch with a throwaway UiAutomator test (`UiObject.performTwoPointerGesture`) in `baselineprofile`, run against the `benchmarkRelease` build. Swipes starting within ~80 px of the left/right edge trigger system Back.
+- Device testing: adb tap helpers break in zsh (no word splitting); write them as bash scripts. adb can't multi-touch: test pinch with a throwaway UiAutomator test (`UiObject.performTwoPointerGesture`) in `baselineprofile`, run against the `benchmarkRelease` build. Swipes starting within ~80 px of the left/right edge trigger system Back.
+- Stress testing: `monkey -p app.plaingallery --pct-syskeys 0 --pct-flip 0` on the release build (same signing key, so `install -r` keeps the `kept` table). Disable the shade first (`cmd statusbar send-disable-flag statusbar-expand`, undo with `none`). It can change in-app settings and save editor copies: check and clean up afterwards. Launch with the launcher intent (`monkey -p app.plaingallery -c android.intent.category.LAUNCHER 1`); `am start -n` creates extra tasks.
+- Spammed taps land during transitions: only the top Nav3 entry may push/pop (`GalleryApp.kt`), `MediaActions` runs one system request at a time and undoes the optimistic change if the screen leaves before the result.
 - MediaStore renames trashed files to `.trashed-<expiry>-<name>`; show the original name.
 
 ## Release & store assets
@@ -59,4 +61,4 @@ Product spec and roadmap: `docs/SPEC.md`.
 ```
 
 ## Verification expectations
-Run unit tests and a release build after changes; for UI changes, install on an emulator (`pg_api37`, Android 17) with sample media and check the touched flow.
+Run unit tests and a release build after changes; for UI changes, install the release build on the owner's phone over USB (the only test device; no emulator) and check the touched flow, including rapid repeated taps. Never trash, favorite or keep real photos without undoing it; deny system dialogs.

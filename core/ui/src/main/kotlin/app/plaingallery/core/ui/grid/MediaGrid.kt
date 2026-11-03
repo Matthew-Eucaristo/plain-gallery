@@ -201,7 +201,8 @@ fun MediaGrid(
         uiState.lastViewedId = null
     }
 
-    var dragAnchor by remember { mutableStateOf<Int?>(null) }
+    // By id, not index: the list can change mid-drag (a download lands, a sync removes items).
+    var dragAnchor by remember { mutableStateOf<Long?>(null) }
     val callbacks = rememberUpdatedState(
         GridGestureCallbacks(
             onTap = { id ->
@@ -209,15 +210,15 @@ fun MediaGrid(
             },
             onLongPress = { id ->
                 haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                dragAnchor = indexOfId[id]
+                dragAnchor = id
                 selection.beginRange()
                 selection.updateRange(listOf(id))
             },
             onDragTo = { id ->
-                val anchor = dragAnchor ?: return@GridGestureCallbacks
+                val anchor = dragAnchor?.let { indexOfId[it] } ?: return@GridGestureCallbacks
                 val current = indexOfId[id] ?: return@GridGestureCallbacks
                 val range = if (anchor <= current) anchor..current else current..anchor
-                selection.updateRange(range.map { items[it].id })
+                selection.updateRange(range.mapNotNull { items.getOrNull(it)?.id })
             },
             onDragEnd = {
                 dragAnchor = null

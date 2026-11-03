@@ -75,7 +75,8 @@ fun TidyScreen(onBack: () -> Unit) {
     // Deletions are committed once, when leaving: one system confirmation for the whole session.
     val finish = {
         val discard = vm.toDiscard
-        if (discard.isEmpty()) onBack() else actions.trash(discard) { onBack() }
+        // Stay (with every decision) if the user cancels the system confirmation.
+        if (discard.isEmpty()) onBack() else actions.trash(discard) { ok -> if (ok) onBack() }
     }
     BackHandler(onBack = finish)
 

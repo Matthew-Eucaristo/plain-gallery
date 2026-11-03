@@ -201,7 +201,7 @@ Diurutkan menurut nilai dibanding usaha (riset Nov 2026). Semua offline.
 
 Tidak dikejar: Gemini Nano (hanya HP flagship), F-Droid.
 
-## 9. Status (0.2.0, 3 Nov 2026)
+## 9. Status (0.2.1, 3 Nov 2026)
 
 Sudah dibuat dan diuji di emulator Android 17: semua layar di bagian 5, kecuali yang tercatat di bawah.
 
@@ -210,6 +210,8 @@ Sudah dibuat dan diuji di emulator Android 17: semua layar di bagian 5, kecuali 
 - Cold start release dengan Baseline Profile: ~120–160 ms di emulator (HP budget akan lebih lambat).
 - Video: retry otomatis ke software decoder jika hardware decoder gagal (player dan konversi).
 - Diuji di emulator: 7 format video (AVI/MPEG-4, WebM/VP9, 3GP, MOV, MP4/AV1, MKV/HEVC, MP4/HEVC) dan foto AVIF/HEIC/BMP/GIF; konversi HEVC→H.264, VP9 WebM→H.264 480p, AVIF→JPEG, HEIC→WebP 1080 px.
+- Uji stres di HP (Infinix, Android 16): monkey 25.000+ event dan spam tombol per fitur (back, hapus, favorit, edit, undo/simpan editor, tab, pilih-seret, Rapikan, hapus massal 380 item, restore setelah proses dibunuh) tanpa crash; puncak memori ~490 MB.
+- Mulai sekarang pengujian dilakukan langsung di HP; emulator tidak dipakai lagi.
 - Belum diuji: foto Ultra HDR asli, DNG asli, Android 11–12.
 
 ## 10. Verifikasi MVP

@@ -9,6 +9,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.plaingallery.core.data.MediaRepository
 import app.plaingallery.core.model.Media
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 enum class TidyOrder { Oldest, Largest }
@@ -27,6 +29,16 @@ class TidyViewModel(private val repository: MediaRepository) : ViewModel() {
     var position by mutableIntStateOf(0)
         private set
     private val decisions = mutableStateListOf<Pair<Media, Decision>>()
+
+    init {
+        // Restored after process death, the library may not be loaded yet.
+        if (repository.library.value == null) {
+            viewModelScope.launch {
+                repository.library.filterNotNull().first()
+                if (decisions.isEmpty()) deck = buildDeck(order)
+            }
+        }
+    }
 
     val current: Media? get() = deck.getOrNull(position)
     val upcoming: List<Media> get() = deck.drop(position + 1).take(PREFETCH)

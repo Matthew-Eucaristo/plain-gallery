@@ -1,0 +1,3 @@
+Fixes a crash when tapping Back quickly.
+Rapid taps on Delete, Favorite, Edit and Undo are now handled safely.
+Viewer and Tidy reopen in the right place after the system closes the app.

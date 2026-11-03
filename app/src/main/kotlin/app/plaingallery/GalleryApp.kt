@@ -78,15 +78,22 @@ fun GalleryApp() {
     }
 
     val backStack = rememberNavBackStack(HomeKey)
-    val pop: () -> Unit = { backStack.removeLastOrNull() }
-    val openViewer: (MediaCollection, Media) -> Unit = { collection, media -> backStack.add(ViewerKey(collection, media.id)) }
+    // Taps land during transitions, so a spammed button may fire again from a screen that is already
+    // leaving. Only the top entry may push or pop, and the home entry never leaves.
+    fun push(from: NavKey, to: NavKey) {
+        if (backStack.lastOrNull() == from) backStack.add(to)
+    }
+    fun pop(from: NavKey): () -> Unit = {
+        if (backStack.size > 1 && backStack.last() == from) backStack.removeAt(backStack.lastIndex)
+    }
+    fun openViewer(from: NavKey): (MediaCollection, Media) -> Unit = { collection, media -> push(from, ViewerKey(collection, media.id)) }
     val fade = tween<Float>(durationMillis = 200)
 
     SharedTransitionLayout {
         CompositionLocalProvider(LocalSharedTransitionScope provides this) {
             NavDisplay(
                 backStack = backStack,
-                onBack = pop,
+                onBack = { if (backStack.size > 1) backStack.removeAt(backStack.lastIndex) },
                 sharedTransitionScope = this,
                 entryDecorators = listOf(
                     rememberSaveableStateHolderNavEntryDecorator(),
@@ -100,17 +107,17 @@ fun GalleryApp() {
                             Home(
                                 partialAccess = access == MediaAccess.Partial,
                                 onRequestAccess = requestAccess,
-                                onOpen = openViewer,
-                                onOpenCollection = { backStack.add(CollectionKey(it)) },
-                                onOpenTidy = { backStack.add(TidyKey) },
-                                onOpenSettings = { backStack.add(SettingsKey) },
+                                onOpen = openViewer(HomeKey),
+                                onOpenCollection = { push(HomeKey, CollectionKey(it)) },
+                                onOpenTidy = { push(HomeKey, TidyKey) },
+                                onOpenSettings = { push(HomeKey, SettingsKey) },
                             )
                         }
                     }
-                    entry<ViewerKey> { key -> Animated { ViewerScreen(key.collection, key.mediaId, onBack = pop) } }
-                    entry<CollectionKey> { key -> Animated { CollectionScreen(key.collection, onOpen = openViewer, onBack = pop) } }
-                    entry<TidyKey> { TidyScreen(onBack = pop) }
-                    entry<SettingsKey> { SettingsScreen(onBack = pop) }
+                    entry<ViewerKey> { key -> Animated { ViewerScreen(key.collection, key.mediaId, onBack = pop(key)) } }
+                    entry<CollectionKey> { key -> Animated { CollectionScreen(key.collection, onOpen = openViewer(key), onBack = pop(key)) } }
+                    entry<TidyKey> { TidyScreen(onBack = pop(TidyKey)) }
+                    entry<SettingsKey> { SettingsScreen(onBack = pop(SettingsKey)) }
                 },
             )
         }

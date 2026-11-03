@@ -3,6 +3,7 @@ package app.plaingallery.core.data
 import android.database.ContentObserver
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import app.plaingallery.core.data.db.KeptEntity
 import app.plaingallery.core.data.db.MediaDao
 import app.plaingallery.core.data.db.MediaRow
@@ -17,8 +18,10 @@ import app.plaingallery.core.model.SearchQueryParser
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -79,7 +82,14 @@ class MediaRepository internal constructor(
     init {
         scope.launch {
             for (request in syncRequests) {
-                sync()
+                // One failed pass (e.g. a full disk) must not end syncing for the rest of the process.
+                try {
+                    sync()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.w("MediaRepository", "Sync failed", e)
+                }
                 delay(SYNC_DEBOUNCE_MS)
             }
         }
@@ -148,12 +158,13 @@ class MediaRepository internal constructor(
         overrideFavorite(ids, null)
     }
 
-    suspend fun keep(ids: List<Long>) {
+    // `kept` is user data: finish the write even if the screen that asked for it goes away.
+    suspend fun keep(ids: List<Long>) = withContext(NonCancellable) {
         val now = System.currentTimeMillis()
         dao.keep(ids.map { KeptEntity(it, now) })
     }
 
-    suspend fun unkeep(ids: List<Long>) = dao.unkeep(ids)
+    suspend fun unkeep(ids: List<Long>) = withContext(NonCancellable) { dao.unkeep(ids) }
 
     private fun toMedia(rows: List<MediaRow>): List<Media> {
         val rules = ZoneId.systemDefault().rules

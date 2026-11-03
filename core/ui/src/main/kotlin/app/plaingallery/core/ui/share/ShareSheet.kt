@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -184,6 +185,8 @@ private fun PresetPicker(selected: SharePreset, onSelect: (SharePreset) -> Unit)
                 onClick = { onSelect(preset) },
                 shape = SegmentedButtonDefaults.itemShape(index, presets.size),
                 icon = {},
+                // Four labels share a phone's width; the default padding clips "Recommended".
+                contentPadding = PaddingValues(horizontal = 4.dp),
             ) {
                 Text(
                     stringResource(preset.labelRes()),

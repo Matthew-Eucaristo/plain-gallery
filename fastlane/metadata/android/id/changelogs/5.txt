@@ -1,0 +1,3 @@
+Memperbaiki crash saat menekan Kembali berulang kali dengan cepat.
+Ketukan cepat pada Hapus, Favorit, Edit, dan Urungkan kini aman.
+Viewer dan Rapikan terbuka di posisi yang benar setelah app ditutup sistem.

@@ -82,11 +82,11 @@ fun SettingsScreen(onBack: () -> Unit) {
                         stringResource(R.string.settings_manage_media_unsupported),
                         style = MaterialTheme.typography.bodySmall,
                     )
-                    canManageMedia -> FilledTonalButton(onClick = { context.startActivity(graph.writer.manageMediaSettingsIntent()) }) {
+                    canManageMedia -> FilledTonalButton(onClick = { runCatching { context.startActivity(graph.writer.manageMediaSettingsIntent()) } }) {
                         Icon(Icons.Filled.Check, null, Modifier.padding(end = 8.dp))
                         Text(stringResource(R.string.settings_manage_media_on))
                     }
-                    else -> FilledTonalButton(onClick = { context.startActivity(graph.writer.manageMediaSettingsIntent()) }) {
+                    else -> FilledTonalButton(onClick = { runCatching { context.startActivity(graph.writer.manageMediaSettingsIntent()) } }) {
                         Text(stringResource(R.string.settings_manage_media_off))
                     }
                 }

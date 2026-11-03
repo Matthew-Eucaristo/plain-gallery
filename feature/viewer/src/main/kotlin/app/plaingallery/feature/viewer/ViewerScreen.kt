@@ -97,6 +97,13 @@ fun ViewerScreen(collection: MediaCollection, initialId: Long, onBack: () -> Uni
     val uiState = LocalGalleryUiState.current
     val initialPage = remember { list.indexOfFirst { it.id == initialId }.coerceAtLeast(0) }
     val pager = rememberPagerState(initialPage) { list.size }
+    // After process death the library loads after the first frame; open on the right item once it does.
+    var positioned by rememberSaveable { mutableStateOf(list.any { it.id == initialId }) }
+    LaunchedEffect(items) {
+        if (positioned || items == null) return@LaunchedEffect
+        list.indexOfFirst { it.id == initialId }.takeIf { it >= 0 }?.let { pager.scrollToPage(it) }
+        positioned = true
+    }
     val current = list.getOrNull(pager.currentPage)
     val isTrash = collection == MediaCollection.Trash
 
@@ -116,7 +123,9 @@ fun ViewerScreen(collection: MediaCollection, initialId: Long, onBack: () -> Uni
 
     // After an edit, show the saved copy as soon as the library picks it up.
     var editedId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var editing by rememberSaveable { mutableStateOf(false) }
     val editor = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        editing = false
         result.data?.data?.takeIf { result.resultCode == Activity.RESULT_OK }?.let { editedId = runCatching { ContentUris.parseId(it) }.getOrNull() }
     }
     LaunchedEffect(list, editedId) {
@@ -202,12 +211,17 @@ fun ViewerScreen(collection: MediaCollection, initialId: Long, onBack: () -> Uni
                         }
                         if (!current.isVideo) {
                             Action(rememberVectorPainter(Icons.Filled.Edit), stringResource(R.string.action_edit)) {
-                                // The built-in editor (EditActivity); it returns the saved copy.
-                                editor.launch(
-                                    Intent(Intent.ACTION_EDIT)
-                                        .setDataAndType(current.contentUri, current.mimeType)
-                                        .setPackage(context.packageName),
-                                )
+                                // The built-in editor (EditActivity); it returns the saved copy. One at a time.
+                                if (!editing) {
+                                    editing = true
+                                    runCatching {
+                                        editor.launch(
+                                            Intent(Intent.ACTION_EDIT)
+                                                .setDataAndType(current.contentUri, current.mimeType.ifEmpty { "image/*" })
+                                                .setPackage(context.packageName),
+                                        )
+                                    }.onFailure { editing = false }
+                                }
                             }
                         }
                         Action(

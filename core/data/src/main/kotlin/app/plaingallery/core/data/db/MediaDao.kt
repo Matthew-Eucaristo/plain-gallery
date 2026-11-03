@@ -33,16 +33,25 @@ abstract class MediaDao {
     }
 
     @Query("UPDATE media SET isTrashed = :trashed WHERE id IN (:ids)")
-    abstract suspend fun setTrashed(ids: List<Long>, trashed: Boolean)
+    protected abstract suspend fun setTrashedChunk(ids: List<Long>, trashed: Boolean)
+
+    @Transaction
+    open suspend fun setTrashed(ids: List<Long>, trashed: Boolean) = ids.chunked(CHUNK).forEach { setTrashedChunk(it, trashed) }
 
     @Query("UPDATE media SET isFavorite = :favorite WHERE id IN (:ids)")
-    abstract suspend fun setFavorite(ids: List<Long>, favorite: Boolean)
+    protected abstract suspend fun setFavoriteChunk(ids: List<Long>, favorite: Boolean)
+
+    @Transaction
+    open suspend fun setFavorite(ids: List<Long>, favorite: Boolean) = ids.chunked(CHUNK).forEach { setFavoriteChunk(it, favorite) }
 
     @Upsert
     abstract suspend fun keep(items: List<KeptEntity>)
 
     @Query("DELETE FROM kept WHERE id IN (:ids)")
-    abstract suspend fun unkeep(ids: List<Long>)
+    protected abstract suspend fun unkeepChunk(ids: List<Long>)
+
+    @Transaction
+    open suspend fun unkeep(ids: List<Long>) = ids.chunked(CHUNK).forEach { unkeepChunk(it) }
 
     private companion object {
         /** Stays under SQLite's bound-parameter limit. */

@@ -92,7 +92,11 @@ fun EditorScreen(uri: Uri, onClose: () -> Unit, onSaved: (Uri) -> Unit) {
 
     val close = { if (state.isUnchanged) onClose() else confirmDiscard = true }
     BackHandler(enabled = !saving) { close() }
-    LaunchedEffect(tool) { comparing = false }
+    // A slider or crop drag cut short by switching tools never commits; drop its preview.
+    LaunchedEffect(tool) {
+        comparing = false
+        draft = null
+    }
 
     // No Surface here, so set the content colour icons and text inherit.
     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface) {
@@ -103,13 +107,14 @@ fun EditorScreen(uri: Uri, onClose: () -> Unit, onSaved: (Uri) -> Unit) {
             ) {
                 IconButton(onClick = close, enabled = !saving) { Icon(Icons.Filled.Close, stringResource(R.string.editor_close)) }
                 Spacer(Modifier.weight(1f))
-                IconButton(onClick = { history = history.dropLast(1) }, enabled = history.size > 1 && !saving) {
+                IconButton(onClick = { if (history.size > 1) history = history.dropLast(1) }, enabled = history.size > 1 && !saving) {
                     Icon(painterResource(UiR.drawable.ic_undo), stringResource(UiR.string.action_undo))
                 }
                 Box(Modifier.padding(end = 8.dp), contentAlignment = Alignment.Center) {
                     Button(
                         enabled = !state.isUnchanged && !saving && bitmap != null,
                         onClick = {
+                            if (saving) return@Button
                             saving = true
                             scope.launch {
                                 runCatching { saveEditedCopy(context, uri, state) }
