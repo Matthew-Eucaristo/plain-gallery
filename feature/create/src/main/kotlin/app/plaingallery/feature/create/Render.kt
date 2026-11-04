@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.ImageDecoder
 import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.Typeface
 import android.net.Uri
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -72,11 +73,21 @@ internal fun renderGridPreview(source: Bitmap, rows: Int, shape: TileShape): Bit
         color = Color.WHITE
         textSize = crop.width / 14f
         textAlign = Paint.Align.CENTER
-        setShadowLayer(textSize / 6, 0f, 0f, Color.BLACK)
+        typeface = Typeface.DEFAULT_BOLD
+    }
+    // A dark outline under the white number keeps it readable on light photos too.
+    val outline = Paint(text).apply {
+        color = Color.argb(200, 0, 0, 0)
+        style = Paint.Style.STROKE
+        strokeWidth = text.textSize / 7
+        strokeJoin = Paint.Join.ROUND
     }
     val origin = Box(0, 0, crop.width, crop.height)
     InstagramGrid.tiles(origin, rows).forEachIndexed { i, tile ->
-        canvas.drawText("${i + 1}", (tile.left + tile.right) / 2f, (tile.top + tile.bottom) / 2f + text.textSize / 3, text)
+        val x = (tile.left + tile.right) / 2f
+        val y = (tile.top + tile.bottom) / 2f + text.textSize / 3
+        canvas.drawText("${i + 1}", x, y, outline)
+        canvas.drawText("${i + 1}", x, y, text)
     }
     return output
 }
